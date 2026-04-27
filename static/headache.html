@@ -473,12 +473,6 @@
 </head>
 <body>
   <div class="wrap">
-    <div style="width:100%;display:flex;justify-content:flex-start;">
-      <a href="/mission/" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:.75rem;font-weight:600;text-decoration:none;transition:border-color .2s,color .2s;text-transform:uppercase;letter-spacing:.1em;" onmouseover="this.style.borderColor='rgba(122,231,255,.35)';this.style.color='var(--cyan)'" onmouseout="this.style.borderColor='var(--line)';this.style.color='var(--muted)'">&#8592; Sanctum Home</a>
-    </div>
-
-    <h1 style="margin-top:0;">Headache Log</h1>
-
     <div class="btn-row">
       <button class="brain-btn start" id="btn-start" onclick="openStartPopover()">
         <img src="./headache-brain-sad.png" alt="Start headache" />
@@ -907,14 +901,16 @@
     setInterval(loadAndRender, 10000);
 
     document.addEventListener('click', event => {
-      // Don't close popover when clicking inside it or on the start button
       const popover = document.getElementById('start-popover');
       const startBtn = document.getElementById('btn-start');
       if (!popover.classList.contains('show')) return;
-      if (popover.contains(event.target) || startBtn.contains(event.target)) return;
-      // Only close if clicking outside
+      // Stop propagation so clicks inside popover don't reach the document handler
+      if (popover.contains(event.target) || startBtn.contains(event.target)) {
+        event.stopPropagation();
+        return;
+      }
       closeStartPopover();
-    });
+    }, true);
   </script>
 </body>
 </html>
