@@ -1,0 +1,5 @@
+# Headache Log Docker Image
+# Self-hostable headache tracking app
+
+# No external dependencies needed — pure Python stdlib
+# Only used for the health check probe in Dockerfile

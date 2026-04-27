@@ -1,0 +1,918 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#06070b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <title>Headache Log</title>
+  <style>
+    :root {
+      --bg: #06070b;
+      --panel: rgba(15,18,27,.88);
+      --panel-2: rgba(20,25,37,.92);
+      --line: rgba(130,177,255,.16);
+      --text: #edf3ff;
+      --muted: #9aa7c2;
+      --cyan: #7ae7ff;
+      --gold: #d7aa61;
+      --ember: #ff7a4d;
+      --green: #4dffb4;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+      background: linear-gradient(180deg,#04050a 0%,#0b1020 55%,#090b12 100%);
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
+      align-items: center;
+      padding: 20px;
+      gap: 20px;
+    }
+    .wrap {
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      align-items: center;
+    }
+    h1 {
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: .2em;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    /* ── Button row ── */
+    .btn-row {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      position: relative;
+    }
+    .brain-btn {
+      appearance: none;
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      border: 2px solid;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform .1s, box-shadow .15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .brain-btn:active { transform: scale(.94); }
+    .brain-btn img {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .brain-btn .btn-label {
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+    }
+
+    .brain-btn.start {
+      border-color: rgba(255,77,50,.55);
+      background: radial-gradient(circle at 50% 40%, #ff6b4d 0%, #cc3322 55%, #991111 100%);
+      box-shadow: 0 0 28px rgba(255,77,50,.35), 0 0 0 7px rgba(255,77,50,.08), inset 0 2px 0 rgba(255,255,255,.15);
+      color: #fff;
+    }
+    .brain-btn.start:hover { box-shadow: 0 0 40px rgba(255,77,50,.5), 0 0 0 10px rgba(255,77,50,.12), inset 0 2px 0 rgba(255,255,255,.15); }
+    .brain-btn.start:active { box-shadow: 0 0 18px rgba(255,77,50,.45), 0 0 0 4px rgba(255,77,50,.12), inset 0 2px 4px rgba(0,0,0,.25); }
+
+    .brain-btn.end {
+      border-color: rgba(77,255,180,.55);
+      background: radial-gradient(circle at 50% 40%, #4dffb4 0%, #22cc66 55%, #119944 100%);
+      box-shadow: 0 0 28px rgba(77,255,180,.3), 0 0 0 7px rgba(77,255,180,.08), inset 0 2px 0 rgba(255,255,255,.15);
+      color: #021a0d;
+    }
+    .brain-btn.end:hover { box-shadow: 0 0 40px rgba(77,255,180,.45), 0 0 0 10px rgba(77,255,180,.12), inset 0 2px 0 rgba(255,255,255,.15); }
+    .brain-btn.end:active { box-shadow: 0 0 18px rgba(77,255,180,.4), 0 0 0 4px rgba(77,255,180,.12), inset 0 2px 4px rgba(0,0,0,.25); }
+
+    .brain-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .start-popover {
+      position: absolute;
+      top: calc(100% + 14px);
+      left: 0;
+      width: min(320px, calc(100vw - 40px));
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      box-shadow: 0 18px 42px rgba(0,0,0,.45);
+      padding: 14px;
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+      z-index: 20;
+    }
+    .start-popover.show { display: flex; }
+    .start-popover::before {
+      content: '';
+      position: absolute;
+      top: -8px;
+      left: 48px;
+      width: 14px;
+      height: 14px;
+      transform: rotate(45deg);
+      background: rgba(17,21,31,.96);
+      border-left: 1px solid var(--line);
+      border-top: 1px solid var(--line);
+    }
+    .popover-title {
+      font-size: .72rem;
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      color: var(--gold);
+      font-weight: 700;
+    }
+    .popover-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .popover-label {
+      font-size: .68rem;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--muted);
+    }
+    .type-options,
+    .pain-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .type-pill,
+    .pain-dot {
+      appearance: none;
+      border: 1px solid rgba(130,177,255,.18);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      cursor: pointer;
+      transition: transform .12s ease, border-color .15s ease, background .15s ease, box-shadow .15s ease;
+    }
+    .type-pill:active,
+    .pain-dot:active { transform: scale(.96); }
+    .type-pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: .74rem;
+      font-weight: 700;
+    }
+    .type-pill.selected {
+      color: #081019;
+      box-shadow: 0 0 0 1px rgba(255,255,255,.08) inset;
+    }
+    .pain-dot {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .88rem;
+      font-weight: 800;
+      color: #ffd7df;
+    }
+    .pain-dot.selected {
+      color: #fff;
+      box-shadow: 0 0 0 2px rgba(255,255,255,.08) inset, 0 0 18px rgba(255,90,90,.18);
+    }
+    .popover-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .popover-actions button {
+      flex: 1;
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      font-size: .78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      cursor: pointer;
+    }
+    .popover-start {
+      background: linear-gradient(135deg, #ff6b4d, #991111);
+      color: #fff;
+    }
+
+    .flash {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: rgba(255,255,255,.35);
+      opacity: 0;
+      pointer-events: none;
+    }
+    .flash.pop { animation: pop .4s ease-out forwards; }
+    @keyframes pop {
+      0%   { opacity: .7; transform: scale(.8); }
+      100% { opacity: 0;   transform: scale(1.4); }
+    }
+
+    /* ── Status line ── */
+    .status {
+      font-size: .82rem;
+      text-align: center;
+      min-height: 1.4em;
+      opacity: 0;
+      transition: opacity .3s;
+      color: var(--cyan);
+    }
+    .status.show { opacity: 1; }
+    .status.active {
+      color: var(--ember);
+      font-weight: 600;
+    }
+
+    /* ── Active headache banner ── */
+    .active-banner {
+      width: 100%;
+      border-radius: 14px;
+      background: rgba(255,77,50,.12);
+      border: 1px solid rgba(255,77,50,.3);
+      padding: 12px 16px;
+      text-align: center;
+      font-size: .85rem;
+      color: #ff9a85;
+      display: none;
+    }
+    .active-banner.show { display: block; }
+    .active-banner .timer {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #ff6b4d;
+      margin-top: 4px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ── Log panel ── */
+    .log-panel {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      overflow: hidden;
+    }
+    .log-head {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+      font-size: .68rem;
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      color: var(--gold);
+      font-weight: 700;
+    }
+    .log-list {
+      list-style: none;
+      max-height: 260px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--line) transparent;
+    }
+    .log-list li {
+      border-bottom: 1px solid rgba(130,177,255,.07);
+      font-size: .82rem;
+      transition: background .18s ease;
+    }
+    .log-list li:last-child { border-bottom: none; }
+    .log-list li.expanded { background: rgba(122,231,255,.04); }
+    .log-entry-toggle {
+      width: 100%;
+      padding: 12px 16px;
+      background: none;
+      border: none;
+      color: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      text-align: left;
+      cursor: pointer;
+    }
+    .log-entry-main {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      flex: 1;
+    }
+    .log-entry-date {
+      font-size: .89rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .log-entry-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: .74rem;
+    }
+    .log-entry-range { color: var(--muted); }
+    .log-entry-duration {
+      color: var(--gold);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .log-entry-indicators {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .badge {
+      font-size: .65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      padding: 2px 7px;
+      border-radius: 20px;
+    }
+    .badge.s { background: rgba(255,77,50,.2); color: #ff9a85; }
+    .badge.e { background: rgba(77,255,180,.18); color: #7affcc; }
+    .badge.type {
+      color: #081019;
+      border: 1px solid rgba(255,255,255,.12);
+    }
+    .badge.meta {
+      background: rgba(255,122,77,.12);
+      color: #ffb29a;
+      border: 1px solid rgba(255,122,77,.18);
+    }
+    .duration {
+      font-size: .72rem;
+      color: var(--muted);
+      text-align: right;
+      white-space: nowrap;
+    }
+    .log-entry-chevron {
+      font-size: 1rem;
+      color: var(--cyan);
+      opacity: .9;
+      transition: transform .18s ease;
+      flex: 0 0 auto;
+    }
+    .log-list li.expanded .log-entry-chevron { transform: rotate(180deg); }
+    .log-entry-expand {
+      display: none;
+      padding: 0 16px 14px;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .log-list li.expanded .log-entry-expand { display: flex; }
+    .notes-label {
+      font-size: .68rem;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--muted);
+    }
+    .notes-input {
+      width: 100%;
+      min-height: 84px;
+      resize: vertical;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(130,177,255,.2);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: .82rem;
+      line-height: 1.4;
+      padding: 10px 12px;
+      font-family: inherit;
+    }
+    .notes-input:focus {
+      outline: none;
+      border-color: var(--cyan);
+    }
+    .entry-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .entry-facts {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .entry-actions button {
+      flex: 1;
+      padding: 9px;
+      border-radius: 10px;
+      font-size: .78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      cursor: pointer;
+      border: none;
+      transition: opacity .15s;
+    }
+    .entry-actions button:hover { opacity: .85; }
+    .log-empty {
+      padding: 20px 16px;
+      text-align: center;
+      color: var(--muted);
+      font-size: .82rem;
+      font-style: italic;
+    }
+    .btn-save {
+      background: linear-gradient(135deg, #22cc66, #119944);
+      color: #fff;
+    }
+    .btn-del {
+      background: rgba(255,77,50,.2);
+      color: #ff9a85;
+      border: 1px solid rgba(255,77,50,.3) !important;
+    }
+    .btn-cancel {
+      background: rgba(255,255,255,.06);
+      color: var(--muted);
+      border: 1px solid rgba(130,177,255,.15);
+    }
+
+    .export-btn {
+      appearance: none;
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255,255,255,.03);
+      color: var(--muted);
+      font-size: .78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color .2s, color .2s;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+    }
+    .export-btn:hover { border-color: rgba(130,177,255,.3); color: var(--text); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div style="width:100%;display:flex;justify-content:flex-start;">
+      <a href="/mission/" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:.75rem;font-weight:600;text-decoration:none;transition:border-color .2s,color .2s;text-transform:uppercase;letter-spacing:.1em;" onmouseover="this.style.borderColor='rgba(122,231,255,.35)';this.style.color='var(--cyan)'" onmouseout="this.style.borderColor='var(--line)';this.style.color='var(--muted)'">&#8592; Sanctum Home</a>
+    </div>
+
+    <h1 style="margin-top:0;">Headache Log</h1>
+
+    <div class="btn-row">
+      <button class="brain-btn start" id="btn-start" onclick="openStartPopover()">
+        <img src="./headache-brain-sad.png" alt="Start headache" />
+        <span class="btn-label">Start</span>
+        <div class="flash" id="flash-start"></div>
+      </button>
+      <button class="brain-btn end" id="btn-end" onclick="logEnd()">
+        <img src="./headache-brain-happy.png" alt="End headache" />
+        <span class="btn-label">End</span>
+        <div class="flash" id="flash-end"></div>
+      </button>
+      <div class="start-popover" id="start-popover">
+        <div class="popover-title">Start headache</div>
+        <div class="popover-section">
+          <div class="popover-label">Type</div>
+          <div class="type-options" id="type-options"></div>
+        </div>
+        <div class="popover-section">
+          <div class="popover-label">Pain level</div>
+          <div class="pain-options" id="pain-options"></div>
+        </div>
+        <div class="popover-actions">
+          <button class="popover-start" type="button" onclick="confirmStart()">Start</button>
+          <button class="btn-cancel" type="button" onclick="closeStartPopover()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="status" id="status"></div>
+
+    <div class="active-banner" id="active-banner">
+      Headache in progress
+      <div class="timer" id="active-timer">—</div>
+    </div>
+
+    <div class="log-panel">
+      <div class="log-head">Log — <span id="log-count">0</span> episodes</div>
+      <ul class="log-list" id="log-list"></ul>
+    </div>
+
+    <button class="export-btn" onclick="exportLog()">Export CSV</button>
+    <input type="file" id="import-file" accept=".csv,.txt" style="display:none" onchange="importLog(this)" />
+    <button class="export-btn" onclick="document.getElementById('import-file').click()">Import CSV or TXT</button>
+  </div>
+
+  <script>
+    const API_LOG    = '/headache-log';
+    const API_ADD    = '/headache-log-add';
+    const API_END    = '/headache-log-end';
+    const API_EDIT   = '/headache-log-edit';
+    const API_IMPORT = '/headache-log-import';
+
+    let activeInterval = null;
+    let currentEntries = [];
+    let expandedId = null;
+    let selectedType = null;
+    let selectedPain = null;
+
+    const TYPE_STYLES = {
+      sinus:   { label: 'Sinus', color: '#7ae7ff' },
+      migraine:{ label: 'Migraine', color: '#c084fc' },
+      tension: { label: 'Tension', color: '#d7aa61' },
+      cluster: { label: 'Cluster', color: '#ff7a4d' }
+    };
+    const PAIN_COLORS = ['#f6a5b7', '#ef7d92', '#f76b6b', '#f55454', '#e53935'];
+
+    function formatDateDisplay(d) {
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    function formatDate(d) {
+      return d.toISOString().split('T')[0];
+    }
+    function formatTime(d) {
+      return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    }
+    function formatDuration(ms) {
+      if (ms < 0) return '—';
+      const h = Math.floor(ms / 3600000);
+      const m = Math.floor((ms % 3600000) / 60000);
+      if (h > 0) return `${h}h ${m}m`;
+      return `${m}m`;
+    }
+
+    function getEpisodeType(ep) {
+      const value = String(ep.type || '').trim().toLowerCase();
+      return TYPE_STYLES[value] ? value : null;
+    }
+
+    function getEpisodePain(ep) {
+      const value = Number(ep.pain ?? ep.painLevel);
+      return Number.isInteger(value) && value >= 1 && value <= 5 ? value : null;
+    }
+
+    function renderTypeBadge(typeKey, extraClass = '') {
+      if (!typeKey || !TYPE_STYLES[typeKey]) return '';
+      const type = TYPE_STYLES[typeKey];
+      return `<span class="badge type ${extraClass}" style="background:${type.color}">${type.label}</span>`;
+    }
+
+    function renderPainBadge(pain, extraClass = '') {
+      if (!pain) return '';
+      return `<span class="badge meta ${extraClass}">Pain: 🔥${pain}</span>`;
+    }
+
+    function renderStartPopoverOptions() {
+      const typeWrap = document.getElementById('type-options');
+      const painWrap = document.getElementById('pain-options');
+      typeWrap.innerHTML = [
+        `<button class="type-pill ${selectedType === null ? 'selected' : ''}" type="button" onclick="setStartType(null)">None</button>`,
+        ...Object.entries(TYPE_STYLES).map(([key, cfg]) => `
+          <button class="type-pill ${selectedType === key ? 'selected' : ''}" type="button" onclick="setStartType('${key}')" style="${selectedType === key ? `background:${cfg.color};border-color:${cfg.color};` : ''}">${cfg.label}</button>
+        `)
+      ].join('');
+      painWrap.innerHTML = Array.from({ length: 5 }, (_, i) => {
+        const pain = i + 1;
+        const color = PAIN_COLORS[i];
+        const selected = selectedPain === pain;
+        return `<button class="pain-dot ${selected ? 'selected' : ''}" type="button" onclick="setStartPain(${pain})" style="background:${selected ? color : 'rgba(255,255,255,.04)'};border-color:${color};">${pain}</button>`;
+      }).join('');
+    }
+
+    function setStartType(type) {
+      selectedType = type;
+      renderStartPopoverOptions();
+    }
+
+    function setStartPain(pain) {
+      selectedPain = selectedPain === pain ? null : pain;
+      renderStartPopoverOptions();
+    }
+
+    function openStartPopover() {
+      if (document.getElementById('btn-start').disabled) return;
+      renderStartPopoverOptions();
+      document.getElementById('start-popover').classList.add('show');
+    }
+
+    function closeStartPopover() {
+      document.getElementById('start-popover').classList.remove('show');
+    }
+
+    function renderLog(entries) {
+      const list = document.getElementById('log-list');
+      const count = document.getElementById('log-count');
+      count.textContent = entries.length;
+      list.innerHTML = '';
+      if (entries.length === 0) {
+        list.innerHTML = '<li class="log-empty">No episodes logged yet.</li>';
+        return;
+      }
+      entries.slice().reverse().forEach(ep => {
+        const s = new Date(ep.start);
+        const hasEnd = !!ep.end;
+        const endDate = hasEnd ? new Date(ep.end) : null;
+        const li = document.createElement('li');
+        const isExpanded = expandedId === ep.id;
+        const duration = hasEnd ? formatDuration(endDate - s) : 'Active';
+        const range = hasEnd
+          ? `${formatTime(s)} - ${formatTime(endDate)}`
+          : `${formatTime(s)} - Active`;
+        const typeKey = getEpisodeType(ep);
+        const pain = getEpisodePain(ep);
+
+        if (isExpanded) li.classList.add('expanded');
+        li.innerHTML = `
+          <button class="log-entry-toggle" type="button" aria-expanded="${isExpanded}" onclick="toggleEntry('${ep.id}')">
+            <div class="log-entry-main">
+              <div class="log-entry-date">${formatDateDisplay(s)}</div>
+              <div class="log-entry-meta">
+                <span class="log-entry-range">${range}</span>
+                <span>•</span>
+                <span class="log-entry-duration">${duration}</span>
+                <span class="log-entry-indicators">${renderTypeBadge(typeKey)}${renderPainBadge(pain)}</span>
+                <span class="badge ${hasEnd ? 'e' : 's'}">${hasEnd ? 'Ended' : 'Active'}</span>
+              </div>
+            </div>
+            <span class="log-entry-chevron">▼</span>
+          </button>
+          <div class="log-entry-expand">
+            <label class="notes-label" for="notes-${ep.id}">Notes</label>
+            <textarea class="notes-input" id="notes-${ep.id}" placeholder="Add notes..." onclick="event.stopPropagation()">${escapeHtml(ep.notes || '')}</textarea>
+            <div class="entry-facts">
+              ${renderTypeBadge(typeKey)}
+              ${renderPainBadge(pain)}
+            </div>
+            <div class="entry-actions">
+              <button class="btn-save" type="button" onclick="event.stopPropagation(); saveEntry('${ep.id}')">Edit</button>
+              <button class="btn-del" type="button" onclick="event.stopPropagation(); deleteEntry('${ep.id}')">Delete</button>
+            </div>
+          </div>`;
+        list.appendChild(li);
+      });
+    }
+
+    function showStatus(msg, isActive) {
+      const el = document.getElementById('status');
+      el.textContent = msg;
+      el.classList.toggle('active', !!isActive);
+      el.classList.add('show');
+      clearTimeout(el._t);
+      el._t = setTimeout(() => el.classList.remove('show'), 2800);
+    }
+
+    function flash(id) {
+      const f = document.getElementById(id);
+      f.classList.remove('pop');
+      void f.offsetWidth;
+      f.classList.add('pop');
+    }
+
+    function updateActiveBanner(entries) {
+      const banner = document.getElementById('active-banner');
+      const timer  = document.getElementById('active-timer');
+      const btnStart = document.getElementById('btn-start');
+      const btnEnd   = document.getElementById('btn-end');
+
+      clearInterval(activeInterval);
+
+      // Find last entry with no end
+      const active = [...entries].reverse().find(ep => !ep.end);
+
+      if (active) {
+        banner.classList.add('show');
+        btnStart.disabled = true;
+        btnEnd.disabled   = false;
+        const start = new Date(active.start);
+        function tick() {
+          const elapsed = Date.now() - start;
+          const h = Math.floor(elapsed / 3600000);
+          const m = Math.floor((elapsed % 3600000) / 60000);
+          const s = Math.floor((elapsed % 60000) / 1000);
+          timer.textContent = h > 0
+            ? `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
+            : `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        }
+        tick();
+        activeInterval = setInterval(tick, 1000);
+      } else {
+        banner.classList.remove('show');
+        timer.textContent = '—';
+        btnStart.disabled = false;
+        btnEnd.disabled   = true;
+      }
+    }
+
+    async function loadAndRender() {
+      try {
+        const r = await fetch(API_LOG);
+        const entries = await r.json();
+        currentEntries = entries;
+        if (expandedId && !entries.find(entry => entry.id === expandedId)) expandedId = null;
+        renderLog(entries);
+        updateActiveBanner(entries);
+      } catch {
+        currentEntries = [];
+        renderLog([]);
+      }
+    }
+
+    async function logStart() {
+      flash('flash-start');
+      try {
+        const body = new URLSearchParams();
+        if (selectedType) body.set('type', selectedType);
+        if (selectedPain) body.set('pain', selectedPain);
+        const r = await fetch(API_ADD, {
+          method: 'POST',
+          body: body.toString(),
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        });
+        const d = await r.json();
+        if (d.timestamp) {
+          closeStartPopover();
+          selectedType = null;
+          selectedPain = null;
+          showStatus('Headache started 🩷', true);
+          await loadAndRender();
+        }
+      } catch {
+        showStatus('Save failed — check connection');
+      }
+    }
+
+    async function confirmStart() {
+      await logStart();
+    }
+
+    async function logEnd() {
+      flash('flash-end');
+      try {
+        const r = await fetch(API_END, { method: 'POST' });
+        const d = await r.json();
+        if (d.success || d.ok) {
+          showStatus('Headache ended 💚');
+          await loadAndRender();
+        } else {
+          showStatus('No active headache to end');
+        }
+      } catch {
+        showStatus('Save failed — check connection');
+      }
+    }
+
+    async function importLog(input) {
+      const file = input.files[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const r = await fetch(API_IMPORT, {
+          method: 'POST',
+          body: text,
+          headers: { 'Content-Type': 'text/csv' }
+        });
+        const d = await r.json();
+        if (d.ok) {
+          showStatus(`Imported ${d.imported} entry(s) — ${d.skipped} skipped`);
+          await loadAndRender();
+        } else {
+          showStatus('Import failed: ' + (d.error || 'unknown error'));
+        }
+      } catch {
+        showStatus('Import failed — check connection');
+      }
+      input.value = '';
+    }
+
+    async function exportLog() {
+      try {
+        const r = await fetch(API_LOG);
+        const entries = await r.json();
+        if (entries.length === 0) { showStatus('No entries to export'); return; }
+        let csv = 'Start Date,Start Time,End Date,End Time,Duration,Type,Pain,Notes\n';
+        const escapeCsv = value => {
+          const text = String(value ?? '');
+          return /[",\n]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
+        };
+        entries.forEach(ep => {
+          const s = new Date(ep.start);
+          const hasEnd = !!ep.end;
+          const e = hasEnd ? new Date(ep.end) : null;
+          const dur = hasEnd ? formatDuration(e - s) : 'Active';
+          csv += [
+            formatDate(s),
+            formatTime(s),
+            hasEnd ? formatDate(e) : '',
+            hasEnd ? formatTime(e) : '',
+            dur,
+            ep.type || '',
+            getEpisodePain(ep) || '',
+            ep.notes || ''
+          ].map(escapeCsv).join(',') + '\n';
+        });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href = url; a.download = 'headache-log.csv'; a.click();
+        URL.revokeObjectURL(url);
+      } catch {
+        showStatus('Export failed');
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function toggleEntry(id) {
+      expandedId = expandedId === id ? null : id;
+      renderLog(currentEntries);
+    }
+
+    async function saveEntry(id) {
+      const ep = currentEntries.find(entry => entry.id === id);
+      const notesEl = document.getElementById('notes-' + id);
+      if (!ep || !notesEl) {
+        showStatus('Entry not found');
+        return;
+      }
+      const body = new URLSearchParams({
+        id,
+        start: ep.start,
+        notes: notesEl.value
+      });
+      if (ep.end) body.set('end', ep.end);
+      try {
+        const r = await fetch(API_EDIT, {
+          method: 'POST',
+          body: body.toString(),
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        });
+        const d = await r.json();
+        if (d.ok) {
+          showStatus('Entry updated');
+          await loadAndRender();
+        } else {
+          showStatus(d.error || 'Update failed');
+        }
+      } catch {
+        showStatus('Update failed');
+      }
+    }
+
+    async function deleteEntry(id) {
+      if (!confirm('Delete this entry?')) return;
+      try {
+        const r = await fetch(API_LOG + '?id=' + encodeURIComponent(id), { method: 'DELETE' });
+        const d = await r.json();
+        if (d.ok) {
+          if (expandedId === id) expandedId = null;
+          showStatus('Entry deleted');
+          await loadAndRender();
+        } else {
+          showStatus(d.error || 'Delete failed');
+        }
+      } catch {
+        showStatus('Delete failed');
+      }
+    }
+
+    loadAndRender();
+    setInterval(loadAndRender, 10000);
+
+    document.addEventListener('click', event => {
+      const popover = document.getElementById('start-popover');
+      const startBtn = document.getElementById('btn-start');
+      if (!popover.classList.contains('show')) return;
+      if (popover.contains(event.target) || startBtn.contains(event.target)) return;
+      closeStartPopover();
+    });
+  </script>
+</body>
+</html>
