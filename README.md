@@ -23,7 +23,7 @@ In Portainer, create a new **Stack** and paste this:
 version: "3.8"
 services:
   headache-log:
-    image: ghcr.io/chaoticsanctum/headache-log:latest
+    image: ghcr.io/iampatticus/simple-headache-log:latest
     container_name: headache-log
     restart: unless-stopped
     ports:
@@ -42,7 +42,7 @@ volumes:
 
 In Portainer's **Containers** → **Add container**:
 
-- **Image:** `ghcr.io/chaoticsanctum/headache-log:latest`
+- **Image:** `ghcr.io/iampatticus/simple-headache-log:latest`
 - **Port:** `5000` (host) → `5000` (container)
 - **Volume:** `headache-data:/app/data`
 - **Restart policy:** `Unless stopped`
@@ -79,7 +79,7 @@ docker cp headache-log:/app/data/headache-log.json ./headache-log-backup.json
 ## Building from source
 
 ```bash
-git clone https://github.com/chaoticsanctum/simple-headache-log.git
+git clone https://github.com/IamPatticus/simple-headache-log.git
 cd simple-headache-log
 docker build -t headache-log .
 docker run -d -p 5000:5000 --name headache-log headache-log
