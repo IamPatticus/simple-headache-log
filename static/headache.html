@@ -654,9 +654,22 @@
           <div class="log-entry-expand">
             <label class="notes-label" for="notes-${ep.id}">Notes</label>
             <textarea class="notes-input" id="notes-${ep.id}" placeholder="Add notes..." onclick="event.stopPropagation()">${escapeHtml(ep.notes || '')}</textarea>
-            <div class="entry-facts">
-              ${renderTypeBadge(typeKey)}
-              ${renderPainBadge(pain)}
+            <div class="entry-section">
+              <label class="notes-label">Type</label>
+              <select id="edit-type-${ep.id}" onclick="event.stopPropagation()" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(130,177,255,.2);border-radius:8px;color:var(--text);padding:8px;font-family:inherit;box-sizing:border-box;">
+                <option value="">None</option>
+                <option value="migraine" ${ep.type?.toLowerCase()==='migraine'?'selected':''}>Migraine</option>
+                <option value="tension" ${ep.type?.toLowerCase()==='tension'?'selected':''}>Tension</option>
+                <option value="cluster" ${ep.type?.toLowerCase()==='cluster'?'selected':''}>Cluster</option>
+                <option value="sinus" ${ep.type?.toLowerCase()==='sinus'?'selected':''}>Sinus</option>
+              </select>
+            </div>
+            <div class="entry-section">
+              <label class="notes-label">Pain Level</label>
+              <div class="pain-row" id="pain-row-${ep.id}" style="display:flex;gap:8px;flex-wrap:wrap;" onclick="event.stopPropagation()">
+                ${[1,2,3,4,5].map(p => `<button type="button" onclick="this.parentElement.querySelectorAll('button').forEach(b=>b.style.fontWeight='400');this.style.fontWeight='700';document.getElementById('edit-pain-${ep.id}').value='${p}'" style="width:38px;height:38px;border-radius:50%;border:1px solid rgba(130,177,255,.18);background:rgba(255,255,255,.04);color:var(--text);cursor:pointer;font-weight:${pain==p?'700':'400'};font-size:.88rem;">🧠${p}</button>`).join('')}
+              </div>
+              <input type="hidden" id="edit-pain-${ep.id}" value="${pain || ''}">
             </div>
             <div class="entry-actions">
               <button class="btn-save" type="button" onclick="event.stopPropagation(); saveEntry('${ep.id}')">Edit</button>
@@ -852,6 +865,8 @@
     async function saveEntry(id) {
       const ep = currentEntries.find(entry => entry.id === id);
       const notesEl = document.getElementById('notes-' + id);
+      const typeEl = document.getElementById('edit-type-' + id);
+      const painEl = document.getElementById('edit-pain-' + id);
       if (!ep || !notesEl) {
         showStatus('Entry not found');
         return;
@@ -862,6 +877,14 @@
         notes: notesEl.value
       });
       if (ep.end) body.set('end', ep.end);
+      if (typeEl) {
+        const t = typeEl.value;
+        if (t) body.set('type', t);
+      }
+      if (painEl) {
+        const p = painEl.value;
+        if (p) body.set('pain', p);
+      }
       try {
         const r = await fetch(API_EDIT, {
           method: 'POST',
