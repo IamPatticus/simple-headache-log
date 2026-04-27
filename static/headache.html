@@ -883,7 +883,7 @@
     async function deleteEntry(id) {
       if (!confirm('Delete this entry?')) return;
       try {
-        const r = await fetch(API_LOG + '?id=' + encodeURIComponent(id), { method: 'DELETE' });
+        const r = await fetch(API_LOG.replace('/headache-log', '/headache-log-delete') + '?id=' + encodeURIComponent(id), { method: 'DELETE' });
         const d = await r.json();
         if (d.ok) {
           if (expandedId === id) expandedId = null;
