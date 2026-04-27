@@ -581,16 +581,16 @@
       const typeWrap = document.getElementById('type-options');
       const painWrap = document.getElementById('pain-options');
       typeWrap.innerHTML = [
-        `<button class="type-pill ${selectedType === null ? 'selected' : ''}" type="button" onclick="setStartType(null)">None</button>`,
+        `<button class="type-pill ${selectedType === null ? 'selected' : ''}" type="button" onclick="event.stopPropagation(); setStartType(null)">None</button>`,
         ...Object.entries(TYPE_STYLES).map(([key, cfg]) => `
-          <button class="type-pill ${selectedType === key ? 'selected' : ''}" type="button" onclick="setStartType('${key}')" style="${selectedType === key ? `background:${cfg.color};border-color:${cfg.color};` : ''}">${cfg.label}</button>
+          <button class="type-pill ${selectedType === key ? 'selected' : ''}" type="button" onclick="event.stopPropagation(); setStartType('${key}')" style="${selectedType === key ? `background:${cfg.color};border-color:${cfg.color};` : ''}">${cfg.label}</button>
         `)
       ].join('');
       painWrap.innerHTML = Array.from({ length: 5 }, (_, i) => {
         const pain = i + 1;
         const color = PAIN_COLORS[i];
         const selected = selectedPain === pain;
-        return `<button class="pain-dot ${selected ? 'selected' : ''}" type="button" onclick="setStartPain(${pain})" style="background:${selected ? color : 'rgba(255,255,255,.04)'};border-color:${color};">🧠${pain}</button>`;
+        return `<button class="pain-dot ${selected ? 'selected' : ''}" type="button" onclick="event.stopPropagation(); setStartPain(${pain})" style="background:${selected ? color : 'rgba(255,255,255,.04)'};border-color:${color};">🧠${pain}</button>`;
       }).join('');
     }
 
@@ -655,8 +655,12 @@
             <label class="notes-label" for="notes-${ep.id}">Notes</label>
             <textarea class="notes-input" id="notes-${ep.id}" placeholder="Add notes..." onclick="event.stopPropagation()">${escapeHtml(ep.notes || '')}</textarea>
             <div class="entry-section">
+              <label class="notes-label">Date &amp; Time</label>
+              <input type="datetime-local" id="edit-start-${ep.id}" value="${ep.start ? ep.start.slice(0,16) : ''}" onclick="event.stopPropagation()" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(130,177,255,.2);border-radius:8px;color:var(--text);padding:8px;font-family:inherit;box-sizing:border-box;box-sizing:border-box;">
+            </div>
+            <div class="entry-section">
               <label class="notes-label">Type</label>
-              <select id="edit-type-${ep.id}" onclick="event.stopPropagation()" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(130,177,255,.2);border-radius:8px;color:var(--text);padding:8px;font-family:inherit;box-sizing:border-box;">
+              <select id="edit-type-${ep.id}" onclick="event.stopPropagation()" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(130,177,255,.2);border-radius:8px;color:var(--text);padding:8px;font-family:inherit;box-sizing:border-box;box-sizing:border-box;">
                 <option value="">None</option>
                 <option value="migraine" ${ep.type?.toLowerCase()==='migraine'?'selected':''}>Migraine</option>
                 <option value="tension" ${ep.type?.toLowerCase()==='tension'?'selected':''}>Tension</option>
@@ -675,7 +679,7 @@
               <button class="btn-save" type="button" onclick="event.stopPropagation(); saveEntry('${ep.id}')">Edit</button>
               <button class="btn-del" type="button" onclick="event.stopPropagation(); deleteEntry('${ep.id}')">Delete</button>
             </div>
-          </div>`;
+          </div>``;
         list.appendChild(li);
       });
     }
@@ -871,9 +875,10 @@
         showStatus('Entry not found');
         return;
       }
+      const startEl = document.getElementById('edit-start-' + id);
       const body = new URLSearchParams({
         id,
-        start: ep.start,
+        start: startEl ? startEl.value : ep.start,
         notes: notesEl.value
       });
       if (ep.end) body.set('end', ep.end);
