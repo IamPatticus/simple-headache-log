@@ -23,7 +23,7 @@ In Portainer, create a new **Stack** and paste this:
 version: "3.8"
 services:
   headache-log:
-    image: ghcr.io/iampatticus/simple-headache-log:latest
+    image: ghcr.io/iampatticus/simple-headache-log:main
     container_name: headache-log
     restart: unless-stopped
     ports:
@@ -42,7 +42,7 @@ volumes:
 
 In Portainer's **Containers** → **Add container**:
 
-- **Image:** `ghcr.io/iampatticus/simple-headache-log:latest`
+- **Image:** `ghcr.io/iampatticus/simple-headache-log:main``
 - **Port:** `5000` (host) → `5000` (container)
 - **Volume:** `headache-data:/app/data`
 - **Restart policy:** `Unless stopped`
