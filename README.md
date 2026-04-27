@@ -15,11 +15,12 @@ A self-hostable headache tracking app. Track migraine episodes, log pain levels,
 
 ## Quick Start (Portainer)
 
-### Method 1: Stack deploy
+### Stack deploy
 
 In Portainer, create a new **Stack** and paste this:
 
 ```yaml
+name: headache-log
 version: "3.8"
 services:
   headache-log:
@@ -27,7 +28,7 @@ services:
     container_name: headache-log
     restart: unless-stopped
     ports:
-      - "5000:5000"
+      - "5002:5000"
     volumes:
       - headache-data:/app/data
     environment:
@@ -38,22 +39,13 @@ volumes:
   headache-data:
 ```
 
-### Method 2: Single container
-
-In Portainer's **Containers** → **Add container**:
-
-- **Image:** `ghcr.io/iampatticus/simple-headache-log:main``
-- **Port:** `5000` (host) → `5000` (container)
-- **Volume:** `headache-data:/app/data`
-- **Restart policy:** `Unless stopped`
-
-Then hit **Deploy**.
+The `name: headache-log` at the top is required — it tells Portainer to manage this as a stack.
 
 ---
 
 ## First Run
 
-Open `http://your-host:5000` in your browser.
+Open `http://your-host:5002` in your browser (adjust the port if you changed the host port in the YAML above).
 
 - Tap the **red brain** to start tracking a headache
 - Tap the **green brain** to stop the current episode
@@ -82,7 +74,7 @@ docker cp headache-log:/app/data/headache-log.json ./headache-log-backup.json
 git clone https://github.com/IamPatticus/simple-headache-log.git
 cd simple-headache-log
 docker build -t headache-log .
-docker run -d -p 5000:5000 --name headache-log headache-log
+docker run -d -p 5002:5000 --name headache-log headache-log
 ```
 
 ## API Endpoints
