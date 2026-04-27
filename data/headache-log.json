@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "id": "1777305586088",
+    "start": "2026-04-27T10:59:46",
+    "end": null,
+    "type": "migraine",
+    "pain": 4,
+    "notes": "Updated via API"
+  },
+  {
+    "id": "1777305853308",
+    "start": "2026-04-27T11:10:00",
+    "end": "2026-04-27T11:04:14",
+    "type": "cluster",
+    "pain": 5,
+    "notes": "Working"
+  },
+  {
+    "id": "1777314190696",
+    "start": "2026-04-27T13:23:10",
+    "end": null,
+    "type": "cluster",
+    "pain": 4,
+    "notes": null
+  }
+]

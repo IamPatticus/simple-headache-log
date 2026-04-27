@@ -900,17 +900,15 @@
     loadAndRender();
     setInterval(loadAndRender, 10000);
 
-    document.addEventListener('click', event => {
+    document.addEventListener('click', function(event) {
       const popover = document.getElementById('start-popover');
-      const startBtn = document.getElementById('btn-start');
       if (!popover.classList.contains('show')) return;
-      // Stop propagation so clicks inside popover don't reach the document handler
-      if (popover.contains(event.target) || startBtn.contains(event.target)) {
-        event.stopPropagation();
-        return;
+      // Only close if clicking OUTSIDE the popover AND outside the start button
+      if (popover.contains(event.target) || document.getElementById('btn-start').contains(event.target)) {
+        return; // inside popover or start button — do nothing
       }
       closeStartPopover();
-    }, true);
+    });
   </script>
 </body>
 </html>
