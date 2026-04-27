@@ -18,29 +18,45 @@ STATIC_DIR = Path(__file__).parent.parent / "static"
 
 def load_data():
     """Load existing headache entries, upgrading legacy formats."""
-    if not os.path.exists(DATA_FILE):
-        return []
-    try:
-        with open(DATA_FILE, "r") as f:
-            data = json.load(f)
-    except (json.JSONDecodeError, IOError):
-        return []
-    # Upgrade legacy flat-entry format
-    if data and isinstance(data[0], str):
-        data = [{"id": str(i + 1), "start": t, "end": None} for i, t in enumerate(data)]
-    # Upgrade old {id, timestamp} format
-    if data and isinstance(data[0], dict) and "timestamp" in data[0] and "type" not in data[0]:
-        data = [{"id": e["id"], "start": e["timestamp"], "end": None} for e in data]
-    return data
+    # Try primary path first, fall back to local data/ if not readable
+    paths_to_try = [
+        DATA_FILE,
+        str(Path(__file__).parent.parent / "data" / "headache-log.json")
+    ]
+    for path in paths_to_try:
+        if os.path.exists(path):
+            try:
+                with open(path, "r") as f:
+                    data = json.load(f)
+            except (json.JSONDecodeError, IOError):
+                continue
+            # Upgrade legacy flat-entry format
+            if data and isinstance(data[0], str):
+                data = [{"id": str(i + 1), "start": t, "end": None} for i, t in enumerate(data)]
+            # Upgrade old {id, timestamp} format
+            if data and isinstance(data[0], dict) and "timestamp" in data[0] and "type" not in data[0]:
+                data = [{"id": e["id"], "start": e["timestamp"], "end": None} for e in data]
+            return data
+    return []
 
 
 def save_data(data):
     """Save headache entries to disk."""
-    os.makedirs(os.path.dirname(DATA_FILE), exist_ok=True)
-    # Ensure file exists and is owned by the user
-    Path(DATA_FILE).touch()
-    with open(DATA_FILE, "w") as f:
-        json.dump(data, f, indent=2)
+    # Try configured path first, fall back to local data/ if not writable
+    data_dir = os.path.dirname(DATA_FILE)
+    try:
+        os.makedirs(data_dir, exist_ok=True)
+        Path(DATA_FILE).touch()
+        with open(DATA_FILE, "w") as f:
+            json.dump(data, f, indent=2)
+    except PermissionError:
+        # Fall back to local ./data/ directory (local dev without Docker)
+        fallback_dir = Path(__file__).parent.parent / "data"
+        fallback_dir.mkdir(exist_ok=True)
+        fallback_file = fallback_dir / "headache-log.json"
+        fallback_file.touch()
+        with open(fallback_file, "w") as f:
+            json.dump(data, f, indent=2)
 
 
 def ts():
@@ -107,6 +123,11 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
         if path in ("/", "/index.html", "/headache.html"):
             self.serve_static("headache.html")
+            return
+
+        if path == "/headache-log" and self.command == "GET":
+            data = load_data()
+            self.send_json(200, json.dumps(data))
             return
 
         # Static asset
