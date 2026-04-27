@@ -164,40 +164,40 @@
       gap: 8px;
     }
     .type-pill,
-    .pain-dot {
-      appearance: none;
-      border: 1px solid rgba(130,177,255,.18);
-      background: rgba(255,255,255,.04);
+    .type-pill {
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: .78rem;
+      font-weight: 700;
+      border: 1px solid rgba(130,177,255,.25);
+      background: rgba(255,255,255,.06);
       color: var(--text);
       cursor: pointer;
-      transition: transform .12s ease, border-color .15s ease, background .15s ease, box-shadow .15s ease;
+      transition: background .15s, border-color .15s;
     }
-    .type-pill:active,
-    .pain-dot:active { transform: scale(.96); }
-    .type-pill {
-      padding: 8px 12px;
-      border-radius: 999px;
-      font-size: .74rem;
-      font-weight: 700;
-    }
+    .type-pill:active { transform: scale(.96); }
     .type-pill.selected {
       color: #081019;
-      box-shadow: 0 0 0 1px rgba(255,255,255,.08) inset;
+      border-color: transparent;
     }
     .pain-dot {
-      width: 38px;
-      height: 38px;
+      appearance: none;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
+      border: 2px solid;
+      cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       font-size: .88rem;
       font-weight: 800;
-      color: #ffd7df;
+      transition: transform .12s ease, box-shadow .15s ease;
     }
+    .pain-dot:active { transform: scale(.94); }
     .pain-dot.selected {
       color: #fff;
-      box-shadow: 0 0 0 2px rgba(255,255,255,.08) inset, 0 0 18px rgba(255,90,90,.18);
+      box-shadow: 0 0 20px rgba(255,90,90,.35), 0 0 0 2px rgba(255,255,255,.1) inset;
     }
     .popover-actions {
       display: flex;
@@ -656,11 +656,11 @@
             <textarea class="notes-input" id="notes-${ep.id}" placeholder="Add notes..." onclick="event.stopPropagation()">${escapeHtml(ep.notes || '')}</textarea>
             <div class="entry-section">
               <label class="notes-label">Date &amp; Time</label>
-              <input type="datetime-local" id="edit-start-${ep.id}" value="${ep.start ? ep.start.slice(0,16) : ''}" onclick="event.stopPropagation()" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(130,177,255,.2);border-radius:8px;color:var(--text);padding:8px;font-family:inherit;box-sizing:border-box;box-sizing:border-box;">
+              <input type="datetime-local" id="edit-start-${ep.id}" value="${ep.start ? ep.start.slice(0,16) : ''}" onclick="event.stopPropagation()" style="width:100%;background:#1a2035;border:1px solid rgba(130,177,255,.35);border-radius:8px;color:var(--text);padding:8px;font-family:inherit;box-sizing:border-box;-webkit-appearance:none;appearance:none;">
             </div>
             <div class="entry-section">
               <label class="notes-label">Type</label>
-              <select id="edit-type-${ep.id}" onclick="event.stopPropagation()" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(130,177,255,.2);border-radius:8px;color:var(--text);padding:8px;font-family:inherit;box-sizing:border-box;box-sizing:border-box;">
+              <select id="edit-type-${ep.id}" onclick="event.stopPropagation()" style="width:100%;background:#1a2035;border:1px solid rgba(130,177,255,.35);border-radius:8px;color:var(--text);padding:8px;font-family:inherit;box-sizing:border-box;-webkit-appearance:none;appearance:none;">
                 <option value="">None</option>
                 <option value="migraine" ${ep.type?.toLowerCase()==='migraine'?'selected':''}>Migraine</option>
                 <option value="tension" ${ep.type?.toLowerCase()==='tension'?'selected':''}>Tension</option>
