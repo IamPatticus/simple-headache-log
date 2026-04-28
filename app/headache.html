@@ -713,6 +713,18 @@ function renderEntry(ep) {
     + '<div class="expand-row edit-pain-row" data-edit-pain="' + ep.id + '">'
     + renderEditPainDots(ep)
     + '</div>'
+    + '<div class="expand-label">START TIME</div>'
+    + '<div class="datetime-row">'
+    + '<input type="date" class="datetime-input" id="sdate-' + ep.id + '" value="' + fmtDateISO(start) + '">'
+    + '<input type="time" class="datetime-input" id="stime-' + ep.id + '" value="' + fmtTime24(start) + '">'
+    + '</div>'
+    + (ep.end
+      ? '<div class="expand-label">END TIME</div>'
+        + '<div class="datetime-row">'
+        + '<input type="date" class="datetime-input" id="edate-' + ep.id + '" value="' + fmtDateISO(end) + '">'
+        + '<input type="time" class="datetime-input" id="etime-' + ep.id + '" value="' + fmtTime24(end) + '">'
+        + '</div>'
+      : '')
     + '<div class="expand-label">NOTES</div>'
     + '<textarea class="notes-input" id="notes-' + ep.id + '" placeholder="Notes...">' + esc(ep.notes || '') + '</textarea>'
     + '<div class="entry-actions">'
@@ -740,6 +752,8 @@ function renderEditPainDots(ep) {
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function fmtDate(d) { return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }); }
 function fmtTime(d) { return d.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', hour12:true }); }
+function fmtDateISO(d) { return d.toISOString().slice(0,10); }
+function fmtTime24(d) { return d.toISOString().slice(11,16); }
 
 function fmtDuration(ms) {
   const totalMin = Math.floor(ms / 60000);
@@ -804,8 +818,27 @@ async function saveEntry(id) {
   const ep = getEntry(id);
   const notesEl = $('notes-' + id);
   if (!ep || !notesEl) return;
-  const body = new URLSearchParams({ id, start: ep.start, notes: notesEl.value });
-  if (ep.end) body.set('end', ep.end);
+
+  // Build start datetime from date + time fields
+  const sdate = $('sdate-' + id);
+  const stime = $('stime-' + id);
+  let start = ep.start;
+  if (sdate && stime && sdate.value && stime.value) {
+    start = sdate.value + 'T' + stime.value + ':00';
+  }
+
+  // Build end datetime if episode has one
+  let end = ep.end;
+  if (ep.end) {
+    const edate = $('edate-' + id);
+    const etime = $('etime-' + id);
+    if (edate && etime && edate.value && etime.value) {
+      end = edate.value + 'T' + etime.value + ':00';
+    }
+  }
+
+  const body = new URLSearchParams({ id, start, notes: notesEl.value });
+  if (end) body.set('end', end);
   if (ep.type) body.set('type', ep.type);
   if (ep.pain != null) body.set('pain', String(ep.pain));
   try {
