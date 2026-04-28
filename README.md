@@ -2,15 +2,20 @@
 
 A self-hostable headache tracking app. Track migraine episodes, log pain levels, and export your data — all from a single Docker container that runs anywhere.
 
-![Headache Log Screenshot](https://i.imgur.com/placeholder.png)
+## Screenshots
+
+| Main View | Expanded Episode |
+|-----------|-----------------|
+| ![Main View](screenshots/main-view.png) | ![Expanded](screenshots/expanded.png) |
 
 ## Features
 
-- **One-tap start/stop** — log when a headache begins and ends with a single tap
-- **Type & pain tracking** — tag episodes with type (Migraine, Tension, Cluster, etc.) and rate pain 1–10
-- **Episode journal** — add notes to any entry after the fact
+- **One-tap start/stop** — red START button begins a headache, green END button closes it
+- **Type selector** — tag episodes as Sinus, Migraine, Tension, or Cluster with color-coded pill buttons
+- **Pain rating** — 1–5 brain icon scale
+- **Episode journal** — expand any entry to edit date/time, type, pain level, and notes
 - **Import / Export** — CSV import and export for backup or migration
-- **Mobile-first design** — works on phone, tablet, and desktop
+- **Mobile-first design** — matches the Android app layout and works on phone, tablet, and desktop
 - **Self-hosted** — your data stays on your hardware
 
 ## Quick Start (Portainer)
@@ -95,6 +100,16 @@ docker run -d -p 5002:5000 --name headache-log headache-log
 - **Frontend:** Vanilla HTML/CSS/JS, no build step
 - **Storage:** JSON file (SQLite-ready upgrade path)
 - **Container:** Docker / Podman
+
+## License
+
+### Adding screenshots
+
+Drop your screenshots into the `screenshots/` folder as:
+- `main-view.png` — the full app UI with buttons and log
+- `expanded.png` — an episode expanded showing edit fields
+
+Then commit and push — GitHub will render them in the README automatically.
 
 ## License
 
