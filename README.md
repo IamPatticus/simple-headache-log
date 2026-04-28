@@ -6,7 +6,7 @@ A self-hostable headache tracking app. Track migraine episodes, log pain levels,
 
 | Main View | Expanded Episode |
 |-----------|-----------------|
-| ![Main View](screenshots/main-view.jpg) | ![Expanded](screenshots/edit.jpg) |
+| ![Main View](screenshots/Main-View.jpg) | ![Expanded](screenshots/edit.jpg) |
 
 ## Features
 
