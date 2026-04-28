@@ -1,7 +1,7 @@
 # simple-headache-log
 
 A self-hostable headache tracking app. Track migraine episodes, log pain levels, and export your data — all from a single Docker container that runs anywhere.
-
+Android Beta Test is here https://iampatticus.github.io/chaoticsanctum/index.html along with a Windows app.
 ## Screenshots
 
 | Main View | Expanded Episode |
