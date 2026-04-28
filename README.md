@@ -25,15 +25,16 @@ A self-hostable headache tracking app. Track migraine episodes, log pain levels,
 In Portainer, create a new **Stack** and paste this:
 
 ```yaml
-name: headache-log
 version: "3.8"
+
+name: headache-log
 services:
   headache-log:
     image: ghcr.io/iampatticus/simple-headache-log:main
     container_name: headache-log
     restart: unless-stopped
     ports:
-      - "5002:5000"
+      - "5070:5000"
     volumes:
       - headache-data:/app/data
     environment:
