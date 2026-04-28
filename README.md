@@ -51,7 +51,7 @@ The `name: headache-log` at the top is required — it tells Portainer to manage
 
 ## First Run
 
-Open `http://your-host:5002` in your browser (adjust the port if you changed the host port in the YAML above).
+Open `http://your-host:5070` in your browser (adjust the port if you changed the host port in the YAML above).
 
 - Tap the **red brain** to start tracking a headache
 - Tap the **green brain** to stop the current episode
