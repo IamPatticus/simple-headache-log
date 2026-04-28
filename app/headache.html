@@ -1,916 +1,885 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#06070b">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <title>Headache Log</title>
-  <style>
-    :root {
-      --bg: #06070b;
-      --panel: rgba(15,18,27,.88);
-      --panel-2: rgba(20,25,37,.92);
-      --line: rgba(130,177,255,.16);
-      --text: #edf3ff;
-      --muted: #9aa7c2;
-      --cyan: #7ae7ff;
-      --gold: #d7aa61;
-      --ember: #ff7a4d;
-      --green: #4dffb4;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      color: var(--text);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
-      background: linear-gradient(180deg,#04050a 0%,#0b1020 55%,#090b12 100%);
-      min-height: 100vh;
-      min-height: 100dvh;
-      display: flex;
-      flex-direction: column;
-      padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
-      align-items: center;
-      padding: 20px;
-      gap: 20px;
-    }
-    .wrap {
-      width: 100%;
-      max-width: 400px;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-      align-items: center;
-    }
-    h1 {
-      font-size: 1rem;
-      text-transform: uppercase;
-      letter-spacing: .2em;
-      color: var(--muted);
-      text-align: center;
-    }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#04050a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>Headache Log</title>
+<style>
+  :root {
+    --bg: #04050a;
+    --panel: #0f1221;
+    --text: #edf3ff;
+    --gold: #d7aa61;
+    --cyan: #7ae7ff;
+    --red: #ff5e6c;
+    --green: #4ade80;
+    --amber: #fbbf24;
+    --muted: #7a8599;
+    --line: #1e2640;
+    --purple: #a78bfa;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    color: var(--text);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: env(safe-area-inset-top, 20px) 20px env(safe-area-inset-bottom, 20px) 20px;
+  }
+  .app {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    flex: 1;
+  }
+  .eyebrow {
+    font-size: .68rem;
+    text-transform: uppercase;
+    letter-spacing: .16em;
+    color: var(--muted);
+    text-align: center;
+    font-weight: 600;
+  }
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    text-align: center;
+    margin-top: 4px;
+  }
 
-    /* ── Button row ── */
-    .btn-row {
-      display: flex;
-      gap: 20px;
-      justify-content: center;
-      position: relative;
-    }
-    .brain-btn {
-      appearance: none;
-      width: 130px;
-      height: 130px;
-      border-radius: 50%;
-      border: 2px solid;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: transform .1s, box-shadow .15s;
-      position: relative;
-      overflow: hidden;
-    }
-    .brain-btn:active { transform: scale(.94); }
-    .brain-btn img {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      pointer-events: none;
-    }
-    .brain-btn .btn-label {
-      font-size: .72rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .12em;
-    }
+  /* ── Type selector ───────────────────────────────────────────── */
+  .type-row {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 18px;
+  }
+  .type-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,.12);
+    background: rgba(255,255,255,.04);
+    color: var(--text);
+    font-size: .78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .15s ease;
+    user-select: none;
+  }
+  .type-pill img {
+    width: 18px; height: 18px;
+    pointer-events: none;
+  }
+  .type-pill:active { transform: scale(.95); }
+  .type-pill.selected {
+    background: #fff;
+    color: #0a0d18;
+    border-color: #fff;
+  }
+  .type-pill.selected img { filter: brightness(0) saturate(100%); }
 
-    .brain-btn.start {
-      border-color: rgba(255,77,50,.55);
-      background: radial-gradient(circle at 50% 40%, #ff6b4d 0%, #cc3322 55%, #991111 100%);
-      box-shadow: 0 0 28px rgba(255,77,50,.35), 0 0 0 7px rgba(255,77,50,.08), inset 0 2px 0 rgba(255,255,255,.15);
-      color: #fff;
-    }
-    .brain-btn.start:hover { box-shadow: 0 0 40px rgba(255,77,50,.5), 0 0 0 10px rgba(255,77,50,.12), inset 0 2px 0 rgba(255,255,255,.15); }
-    .brain-btn.start:active { box-shadow: 0 0 18px rgba(255,77,50,.45), 0 0 0 4px rgba(255,77,50,.12), inset 0 2px 4px rgba(0,0,0,.25); }
+  /* ── Pain selector ───────────────────────────────────────────── */
+  .pain-row {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 16px;
+  }
+  .pain-btn {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .15s ease;
+    position: relative;
+  }
+  .pain-btn img {
+    width: 36px; height: 36px;
+    pointer-events: none;
+    opacity: .45;
+    transition: opacity .15s;
+  }
+  .pain-btn:active { transform: scale(.92); }
+  .pain-btn.selected {
+    border-color: rgba(255,255,255,.25);
+    background: rgba(255,255,255,.06);
+    box-shadow: 0 0 16px rgba(122,231,255,.18);
+  }
+  .pain-btn.selected img { opacity: 1; }
 
-    .brain-btn.end {
-      border-color: rgba(77,255,180,.55);
-      background: radial-gradient(circle at 50% 40%, #4dffb4 0%, #22cc66 55%, #119944 100%);
-      box-shadow: 0 0 28px rgba(77,255,180,.3), 0 0 0 7px rgba(77,255,180,.08), inset 0 2px 0 rgba(255,255,255,.15);
-      color: #021a0d;
-    }
-    .brain-btn.end:hover { box-shadow: 0 0 40px rgba(77,255,180,.45), 0 0 0 10px rgba(77,255,180,.12), inset 0 2px 0 rgba(255,255,255,.15); }
-    .brain-btn.end:active { box-shadow: 0 0 18px rgba(77,255,180,.4), 0 0 0 4px rgba(77,255,180,.12), inset 0 2px 4px rgba(0,0,0,.25); }
+  /* ── Brain buttons ───────────────────────────────────────────── */
+  .btn-row {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    margin-top: 22px;
+  }
+  .brain-btn {
+    width: 130px; height: 130px;
+    border-radius: 50%;
+    border: 2px solid;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: transform .1s, box-shadow .15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .brain-btn:active { transform: scale(.94); }
+  .brain-btn img {
+    width: 58px; height: 58px;
+    pointer-events: none;
+  }
+  .btn-label {
+    font-size: .7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+  }
+  .brain-btn.start {
+    border-color: rgba(255,94,108,.5);
+    background: radial-gradient(circle at 50% 38%, #ff5e6c 0%, #cc3344 55%, #881122 100%);
+    box-shadow: 0 0 30px rgba(255,94,108,.35), 0 0 0 7px rgba(255,94,108,.08), inset 0 2px 0 rgba(255,255,255,.12);
+    color: #fff;
+  }
+  .brain-btn.start:not(:disabled):hover {
+    box-shadow: 0 0 44px rgba(255,94,108,.5), 0 0 0 10px rgba(255,94,108,.12), inset 0 2px 0 rgba(255,255,255,.12);
+  }
+  .brain-btn.end {
+    border-color: rgba(74,222,128,.5);
+    background: radial-gradient(circle at 50% 38%, #4ade80 0%, #22aa55 55%, #116633 100%);
+    box-shadow: 0 0 30px rgba(74,222,128,.3), 0 0 0 7px rgba(74,222,128,.08), inset 0 2px 0 rgba(255,255,255,.12);
+    color: #021a0d;
+  }
+  .brain-btn.end:not(:disabled):hover {
+    box-shadow: 0 0 44px rgba(74,222,128,.45), 0 0 0 10px rgba(74,222,128,.12), inset 0 2px 0 rgba(255,255,255,.12);
+  }
+  .brain-btn:disabled {
+    opacity: .3;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+  .flash {
+    position: absolute; inset: 0; border-radius: 50%;
+    background: rgba(255,255,255,.35);
+    opacity: 0; pointer-events: none;
+  }
+  .flash.pop { animation: pop .4s ease-out forwards; }
+  @keyframes pop {
+    0% { opacity: .7; transform: scale(.8); }
+    100% { opacity: 0; transform: scale(1.4); }
+  }
 
-    .brain-btn:disabled {
-      opacity: 0.35;
-      cursor: not-allowed;
-      transform: none !important;
-    }
+  /* ── Status ──────────────────────────────────────────────────── */
+  .status {
+    font-size: .8rem;
+    text-align: center;
+    min-height: 1.4em;
+    margin-top: 10px;
+    opacity: 0;
+    transition: opacity .3s;
+    color: var(--cyan);
+  }
+  .status.show { opacity: 1; }
+  .status.started { color: var(--green); }
+  .status.stopped { color: var(--amber); }
+  .status.error { color: var(--red); }
 
-    .start-popover {
-      position: absolute;
-      top: calc(100% + 14px);
-      left: 0;
-      width: min(320px, calc(100vw - 40px));
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      background: linear-gradient(180deg, var(--panel), var(--panel-2));
-      box-shadow: 0 18px 42px rgba(0,0,0,.45);
-      padding: 14px;
-      display: none;
-      flex-direction: column;
-      gap: 14px;
-      z-index: 20;
-    }
-    .start-popover.show { display: flex; }
-    .start-popover::before {
-      content: '';
-      position: absolute;
-      top: -8px;
-      left: 48px;
-      width: 14px;
-      height: 14px;
-      transform: rotate(45deg);
-      background: rgba(17,21,31,.96);
-      border-left: 1px solid var(--line);
-      border-top: 1px solid var(--line);
-    }
-    .popover-title {
-      font-size: .72rem;
-      text-transform: uppercase;
-      letter-spacing: .14em;
-      color: var(--gold);
-      font-weight: 700;
-    }
-    .popover-section {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .popover-label {
-      font-size: .68rem;
-      text-transform: uppercase;
-      letter-spacing: .1em;
-      color: var(--muted);
-    }
-    .type-options,
-    .pain-options {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .type-pill,
-    .pain-dot {
-      appearance: none;
-      border: 1px solid rgba(130,177,255,.18);
-      background: rgba(255,255,255,.04);
-      color: var(--text);
-      cursor: pointer;
-      transition: transform .12s ease, border-color .15s ease, background .15s ease, box-shadow .15s ease;
-    }
-    .type-pill:active,
-    .pain-dot:active { transform: scale(.96); }
-    .type-pill {
-      padding: 8px 12px;
-      border-radius: 999px;
-      font-size: .74rem;
-      font-weight: 700;
-    }
-    .type-pill.selected {
-      color: #081019;
-      box-shadow: 0 0 0 1px rgba(255,255,255,.08) inset;
-    }
-    .pain-dot {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: .88rem;
-      font-weight: 800;
-      color: #ffd7df;
-    }
-    .pain-dot.selected {
-      color: #fff;
-      box-shadow: 0 0 0 2px rgba(255,255,255,.08) inset, 0 0 18px rgba(255,90,90,.18);
-    }
-    .popover-actions {
-      display: flex;
-      gap: 10px;
-    }
-    .popover-actions button {
-      flex: 1;
-      padding: 10px;
-      border-radius: 10px;
-      border: none;
-      font-size: .78rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .1em;
-      cursor: pointer;
-    }
-    .popover-start {
-      background: linear-gradient(135deg, #ff6b4d, #991111);
-      color: #fff;
-    }
+  /* ── Episode log card ────────────────────────────────────────── */
+  .log-card {
+    margin-top: 16px;
+    flex: 1;
+    border-radius: 18px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+  }
+  .log-head {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .log-head-left {
+    font-size: .68rem;
+    text-transform: uppercase;
+    letter-spacing: .14em;
+    color: var(--gold);
+    font-weight: 700;
+  }
+  .log-head-right {
+    display: flex;
+    gap: 6px;
+  }
+  .icon-btn {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,.12);
+    background: rgba(255,255,255,.05);
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .82rem;
+    transition: all .15s;
+  }
+  .icon-btn:hover { background: rgba(255,255,255,.1); color: var(--text); }
+  .icon-btn:active { transform: scale(.94); }
+  .log-list {
+    list-style: none;
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--line) transparent;
+    -webkit-overflow-scrolling: touch;
+  }
+  .log-list li {
+    border-bottom: 1px solid rgba(30,38,64,.5);
+    transition: background .18s;
+  }
+  .log-list li:last-child { border-bottom: none; }
+  .log-list li.expanded { background: rgba(122,231,255,.03); }
+  .log-entry-toggle {
+    width: 100%;
+    padding: 14px 16px;
+    background: none;
+    border: none;
+    color: inherit;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .log-entry-main { flex: 1; min-width: 0; }
+  .log-entry-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .log-entry-date {
+    font-size: .89rem;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .log-entry-duration {
+    font-size: .75rem;
+    color: var(--gold);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .log-entry-meta {
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-size: .72rem;
+    color: var(--muted);
+  }
+  .badge {
+    font-size: .63rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    padding: 2px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .badge-active { background: rgba(255,94,108,.18); color: #ffa0a8; }
+  .badge-closed { background: rgba(74,222,128,.15); color: #80f0b0; }
+  .badge-type { color: #0a0d18; border: 1px solid rgba(255,255,255,.08); }
+  .log-entry-chevron {
+    font-size: 1rem;
+    color: var(--cyan);
+    transition: transform .18s;
+    flex-shrink: 0;
+  }
+  .log-list li.expanded .log-entry-chevron { transform: rotate(180deg); }
 
-    .flash {
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      background: rgba(255,255,255,.35);
-      opacity: 0;
-      pointer-events: none;
-    }
-    .flash.pop { animation: pop .4s ease-out forwards; }
-    @keyframes pop {
-      0%   { opacity: .7; transform: scale(.8); }
-      100% { opacity: 0;   transform: scale(1.4); }
-    }
+  .log-entry-expand {
+    display: none;
+    padding: 0 16px 14px;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .log-list li.expanded .log-entry-expand { display: flex; }
+  .expand-label {
+    font-size: .66rem;
+    text-transform: uppercase;
+    letter-spacing: .09em;
+    color: var(--muted);
+  }
+  .expand-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .edit-type-pill {
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,.12);
+    background: rgba(255,255,255,.04);
+    color: var(--text);
+    font-size: .74rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .edit-type-pill.selected {
+    background: #fff;
+    color: #0a0d18;
+    border-color: #fff;
+  }
+  .edit-pain-row {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .edit-pain-dot {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .edit-pain-dot img {
+    width: 26px; height: 26px;
+    opacity: .4;
+    transition: opacity .15s;
+  }
+  .edit-pain-dot.selected { border-color: rgba(255,255,255,.25); background: rgba(255,255,255,.06); }
+  .edit-pain-dot.selected img { opacity: 1; }
+  .notes-input {
+    width: 100%;
+    min-height: 80px;
+    resize: vertical;
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: .82rem;
+    line-height: 1.4;
+    padding: 10px 12px;
+    font-family: inherit;
+  }
+  .notes-input:focus { outline: none; border-color: var(--cyan); }
+  .entry-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .entry-actions button {
+    flex: 1;
+    padding: 9px;
+    border-radius: 10px;
+    font-size: .76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    cursor: pointer;
+    border: none;
+    transition: opacity .15s;
+  }
+  .entry-actions button:hover { opacity: .85; }
+  .btn-save { background: var(--green); color: #021a0d; }
+  .btn-del { background: rgba(255,94,108,.15); color: var(--red); border: 1px solid rgba(255,94,108,.25); }
+  .log-empty {
+    padding: 32px 16px;
+    text-align: center;
+    color: var(--muted);
+    font-size: .84rem;
+    font-style: italic;
+  }
 
-    /* ── Status line ── */
-    .status {
-      font-size: .82rem;
-      text-align: center;
-      min-height: 1.4em;
-      opacity: 0;
-      transition: opacity .3s;
-      color: var(--cyan);
-    }
-    .status.show { opacity: 1; }
-    .status.active {
-      color: var(--ember);
-      font-weight: 600;
-    }
+  /* ── CSV toolbar ─────────────────────────────────────────────── */
+  .csv-tools {
+    display: flex;
+    gap: 8px;
+    padding: 10px 16px;
+    border-top: 1px solid var(--line);
+    justify-content: flex-end;
+  }
+  .csv-tools .icon-btn {
+    font-size: .76rem;
+    width: auto;
+    height: auto;
+    padding: 8px 12px;
+    border-radius: 8px;
+    gap: 5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
 
-    /* ── Active headache banner ── */
-    .active-banner {
-      width: 100%;
-      border-radius: 14px;
-      background: rgba(255,77,50,.12);
-      border: 1px solid rgba(255,77,50,.3);
-      padding: 12px 16px;
-      text-align: center;
-      font-size: .85rem;
-      color: #ff9a85;
-      display: none;
-    }
-    .active-banner.show { display: block; }
-    .active-banner .timer {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #ff6b4d;
-      margin-top: 4px;
-      font-variant-numeric: tabular-nums;
-    }
-
-    /* ── Log panel ── */
-    .log-panel {
-      width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      background: linear-gradient(180deg, var(--panel), var(--panel-2));
-      overflow: hidden;
-    }
-    .log-head {
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--line);
-      font-size: .68rem;
-      text-transform: uppercase;
-      letter-spacing: .14em;
-      color: var(--gold);
-      font-weight: 700;
-    }
-    .log-list {
-      list-style: none;
-      max-height: 260px;
-      overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: var(--line) transparent;
-    }
-    .log-list li {
-      border-bottom: 1px solid rgba(130,177,255,.07);
-      font-size: .82rem;
-      transition: background .18s ease;
-    }
-    .log-list li:last-child { border-bottom: none; }
-    .log-list li.expanded { background: rgba(122,231,255,.04); }
-    .log-entry-toggle {
-      width: 100%;
-      padding: 12px 16px;
-      background: none;
-      border: none;
-      color: inherit;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      text-align: left;
-      cursor: pointer;
-    }
-    .log-entry-main {
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      flex: 1;
-    }
-    .log-entry-date {
-      font-size: .89rem;
-      font-weight: 600;
-      color: var(--text);
-    }
-    .log-entry-meta {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      color: var(--muted);
-      font-size: .74rem;
-    }
-    .log-entry-range { color: var(--muted); }
-    .log-entry-duration {
-      color: var(--gold);
-      font-weight: 600;
-      white-space: nowrap;
-    }
-    .log-entry-indicators {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-    .badge {
-      font-size: .65rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      padding: 2px 7px;
-      border-radius: 20px;
-    }
-    .badge.s { background: rgba(255,77,50,.2); color: #ff9a85; }
-    .badge.e { background: rgba(77,255,180,.18); color: #7affcc; }
-    .badge.type {
-      color: #081019;
-      border: 1px solid rgba(255,255,255,.12);
-    }
-    .badge.meta {
-      background: rgba(255,122,77,.12);
-      color: #ffb29a;
-      border: 1px solid rgba(255,122,77,.18);
-    }
-    .duration {
-      font-size: .72rem;
-      color: var(--muted);
-      text-align: right;
-      white-space: nowrap;
-    }
-    .log-entry-chevron {
-      font-size: 1rem;
-      color: var(--cyan);
-      opacity: .9;
-      transition: transform .18s ease;
-      flex: 0 0 auto;
-    }
-    .log-list li.expanded .log-entry-chevron { transform: rotate(180deg); }
-    .log-entry-expand {
-      display: none;
-      padding: 0 16px 14px;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .log-list li.expanded .log-entry-expand { display: flex; }
-    .notes-label {
-      font-size: .68rem;
-      text-transform: uppercase;
-      letter-spacing: .1em;
-      color: var(--muted);
-    }
-    .notes-input {
-      width: 100%;
-      min-height: 84px;
-      resize: vertical;
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(130,177,255,.2);
-      border-radius: 10px;
-      color: var(--text);
-      font-size: .82rem;
-      line-height: 1.4;
-      padding: 10px 12px;
-      font-family: inherit;
-    }
-    .notes-input:focus {
-      outline: none;
-      border-color: var(--cyan);
-    }
-    .entry-actions {
-      display: flex;
-      gap: 10px;
-    }
-    .entry-facts {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .entry-actions button {
-      flex: 1;
-      padding: 9px;
-      border-radius: 10px;
-      font-size: .78rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .1em;
-      cursor: pointer;
-      border: none;
-      transition: opacity .15s;
-    }
-    .entry-actions button:hover { opacity: .85; }
-    .log-empty {
-      padding: 20px 16px;
-      text-align: center;
-      color: var(--muted);
-      font-size: .82rem;
-      font-style: italic;
-    }
-    .btn-save {
-      background: linear-gradient(135deg, #22cc66, #119944);
-      color: #fff;
-    }
-    .btn-del {
-      background: rgba(255,77,50,.2);
-      color: #ff9a85;
-      border: 1px solid rgba(255,77,50,.3) !important;
-    }
-    .btn-cancel {
-      background: rgba(255,255,255,.06);
-      color: var(--muted);
-      border: 1px solid rgba(130,177,255,.15);
-    }
-
-    .export-btn {
-      appearance: none;
-      width: 100%;
-      padding: 10px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: rgba(255,255,255,.03);
-      color: var(--muted);
-      font-size: .78rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: border-color .2s, color .2s;
-      text-transform: uppercase;
-      letter-spacing: .1em;
-    }
-    .export-btn:hover { border-color: rgba(130,177,255,.3); color: var(--text); }
-  </style>
+  /* ── Refresh indicator ───────────────────────────────────────── */
+  .spinning { animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="btn-row">
-      <button class="brain-btn start" id="btn-start" onclick="openStartPopover()">
-        <img src="./headache-brain-sad.png" alt="Start headache" />
-        <span class="btn-label">Start</span>
-        <div class="flash" id="flash-start"></div>
-      </button>
-      <button class="brain-btn end" id="btn-end" onclick="logEnd()">
-        <img src="./headache-brain-happy.png" alt="End headache" />
-        <span class="btn-label">End</span>
-        <div class="flash" id="flash-end"></div>
-      </button>
-      <div class="start-popover" id="start-popover">
-        <div class="popover-title">Start headache</div>
-        <div class="popover-section">
-          <div class="popover-label">Type</div>
-          <div class="type-options" id="type-options"></div>
-        </div>
-        <div class="popover-section">
-          <div class="popover-label">Pain level</div>
-          <div class="pain-options" id="pain-options"></div>
-        </div>
-        <div class="popover-actions">
-          <button class="popover-start" type="button" onclick="confirmStart()">Start</button>
-          <button class="btn-cancel" type="button" onclick="closeStartPopover()">Cancel</button>
-        </div>
-      </div>
-    </div>
+<div class="app">
+  <div class="eyebrow">CHAOTIC SANCTUM</div>
+  <h1>Headache Log</h1>
 
-    <div class="status" id="status"></div>
-
-    <div class="active-banner" id="active-banner">
-      Headache in progress
-      <div class="timer" id="active-timer">—</div>
-    </div>
-
-    <div class="log-panel">
-      <div class="log-head">Log — <span id="log-count">0</span> episodes</div>
-      <ul class="log-list" id="log-list"></ul>
-    </div>
-
-    <button class="export-btn" onclick="exportLog()">Export CSV</button>
-    <input type="file" id="import-file" accept=".csv,.txt" style="display:none" onchange="importLog(this)" />
-    <button class="export-btn" onclick="document.getElementById('import-file').click()">Import CSV or TXT</button>
+  <!-- Type selector -->
+  <div class="type-row" id="type-row">
+    <button class="type-pill" data-type="SINUS">
+      <img src="ic_sinus.png" alt=""> Sinus
+    </button>
+    <button class="type-pill" data-type="MIGRAINE">
+      <img src="ic_migraine.png" alt=""> Migraine
+    </button>
+    <button class="type-pill" data-type="TENSION">
+      <img src="ic_tension.png" alt=""> Tension
+    </button>
+    <button class="type-pill" data-type="CLUSTER">
+      <img src="ic_cluster.png" alt=""> Cluster
+    </button>
   </div>
 
-  <script>
-    const API_LOG    = '/headache-log';
-    const API_ADD    = '/headache-log-add';
-    const API_END    = '/headache-log-end';
-    const API_EDIT   = '/headache-log-edit';
-    const API_IMPORT = '/headache-log-import';
+  <!-- Pain selector -->
+  <div class="pain-row" id="pain-row">
+    <button class="pain-btn" data-pain="1"><img src="brain_1.png" alt="1"></button>
+    <button class="pain-btn" data-pain="2"><img src="brain_2.png" alt="2"></button>
+    <button class="pain-btn" data-pain="3"><img src="brain_3.png" alt="3"></button>
+    <button class="pain-btn" data-pain="4"><img src="brain_4.png" alt="4"></button>
+    <button class="pain-btn" data-pain="5"><img src="brain_5.png" alt="5"></button>
+  </div>
 
-    let activeInterval = null;
-    let currentEntries = [];
-    let expandedId = null;
-    let selectedType = null;
-    let selectedPain = null;
+  <!-- Brain buttons -->
+  <div class="btn-row">
+    <button class="brain-btn start" id="btn-start" disabled>
+      <div class="flash" id="flash-start"></div>
+      <img src="brain_icon_sad.png" alt="Start">
+      <span class="btn-label">START</span>
+    </button>
+    <button class="brain-btn end" id="btn-end" disabled>
+      <div class="flash" id="flash-end"></div>
+      <img src="brain_icon_happy.png" alt="End">
+      <span class="btn-label">END</span>
+    </button>
+  </div>
 
-    const TYPE_STYLES = {
-      sinus:   { label: 'Sinus', color: '#7ae7ff' },
-      migraine:{ label: 'Migraine', color: '#c084fc' },
-      tension: { label: 'Tension', color: '#d7aa61' },
-      cluster: { label: 'Cluster', color: '#ff7a4d' }
-    };
-    const PAIN_COLORS = ['#f6a5b7', '#ef7d92', '#f76b6b', '#f55454', '#e53935'];
+  <!-- Status -->
+  <div class="status" id="status"></div>
 
-    function formatDateDisplay(d) {
-      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  <!-- Episode log card -->
+  <div class="log-card">
+    <div class="log-head">
+      <span class="log-head-left" id="log-count">LOG — 0 EPISODES</span>
+      <div class="log-head-right">
+        <button class="icon-btn" id="btn-import" title="Import CSV">📥</button>
+        <button class="icon-btn" id="btn-export" title="Export CSV">📤</button>
+        <button class="icon-btn" id="btn-refresh" title="Refresh">↻</button>
+      </div>
+    </div>
+    <ul class="log-list" id="log-list"></ul>
+    <div class="csv-tools">
+      <label class="icon-btn" id="btn-import-label" title="Import CSV">📥 Import</label>
+      <button class="icon-btn" id="btn-export-bottom" title="Export CSV">📤 Export</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="csv-file" accept=".csv" style="display:none">
+
+<script>
+const API = {
+  log: '/headache-log',
+  add: '/headache-log-add',
+  end: '/headache-log-end',
+  edit: '/headache-log-edit',
+  import: '/headache-log-import',
+  delete: '/headache-log-delete'
+};
+
+let entries = [];
+let expandedId = null;
+let selectedType = null;
+let selectedPain = null;
+let activeEpisode = null;
+let statusTimer = null;
+
+function $(id) { return document.getElementById(id); }
+
+/* ── Type selector ─────────────────────────────────────────────── */
+$('type-row').addEventListener('click', e => {
+  const pill = e.target.closest('.type-pill');
+  if (!pill) return;
+  const wasSelected = pill.classList.contains('selected');
+  $('type-row').querySelectorAll('.type-pill').forEach(p => p.classList.remove('selected'));
+  if (!wasSelected) {
+    pill.classList.add('selected');
+    selectedType = pill.dataset.type;
+  } else {
+    selectedType = null;
+  }
+});
+
+/* ── Pain selector ─────────────────────────────────────────────── */
+$('pain-row').addEventListener('click', e => {
+  const btn = e.target.closest('.pain-btn');
+  if (!btn) return;
+  const wasSelected = btn.classList.contains('selected');
+  $('pain-row').querySelectorAll('.pain-btn').forEach(b => b.classList.remove('selected'));
+  if (!wasSelected) {
+    btn.classList.add('selected');
+    selectedPain = parseInt(btn.dataset.pain);
+  } else {
+    selectedPain = null;
+  }
+  updateStartButton();
+});
+
+/* ── Brain buttons ─────────────────────────────────────────────── */
+$('btn-start').addEventListener('click', async () => {
+  if ($('btn-start').disabled) return;
+  const body = new URLSearchParams();
+  if (selectedType) body.set('type', selectedType);
+  if (selectedPain) body.set('pain', String(selectedPain));
+  flashBtn('flash-start');
+  try {
+    const r = await fetch(API.add, { method: 'POST', body });
+    const d = await r.json();
+    if (d.ok) {
+      showStatus('Headache started', 'started');
+      await loadData();
+    } else {
+      showStatus(d.error || 'Failed to start', 'error');
     }
-    function formatDate(d) {
-      return d.toISOString().split('T')[0];
+  } catch { showStatus('Connection error', 'error'); }
+});
+
+$('btn-end').addEventListener('click', async () => {
+  if ($('btn-end').disabled) return;
+  flashBtn('flash-end');
+  try {
+    const r = await fetch(API.end, { method: 'POST' });
+    const d = await r.json();
+    if (d.ok) {
+      showStatus('Headache ended', 'stopped');
+      await loadData();
+    } else {
+      showStatus(d.error || 'Failed to end', 'error');
     }
-    function formatTime(d) {
-      return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-    }
-    function formatDuration(ms) {
-      if (ms < 0) return '—';
-      const h = Math.floor(ms / 3600000);
-      const m = Math.floor((ms % 3600000) / 60000);
-      if (h > 0) return `${h}h ${m}m`;
-      return `${m}m`;
-    }
+  } catch { showStatus('Connection error', 'error'); }
+});
 
-    function getEpisodeType(ep) {
-      const value = String(ep.type || '').trim().toLowerCase();
-      return TYPE_STYLES[value] ? value : null;
-    }
+function flashBtn(id) {
+  const el = $(id);
+  el.classList.remove('pop');
+  void el.offsetWidth;
+  el.classList.add('pop');
+}
 
-    function getEpisodePain(ep) {
-      const value = Number(ep.pain ?? ep.painLevel);
-      return Number.isInteger(value) && value >= 1 && value <= 5 ? value : null;
-    }
+function showStatus(text, cls) {
+  const s = $('status');
+  s.textContent = text;
+  s.className = 'status show ' + (cls || '');
+  clearTimeout(statusTimer);
+  statusTimer = setTimeout(() => { s.className = 'status'; }, 3000);
+}
 
-    function renderTypeBadge(typeKey, extraClass = '') {
-      if (!typeKey || !TYPE_STYLES[typeKey]) return '';
-      const type = TYPE_STYLES[typeKey];
-      return `<span class="badge type ${extraClass}" style="background:${type.color}">${type.label}</span>`;
-    }
+function updateButtons() {
+  const hasActive = entries.some(e => !e.end);
+  activeEpisode = entries.find(e => !e.end) || null;
+  $('btn-start').disabled = hasActive;
+  $('btn-end').disabled = !hasActive;
+}
 
-    function renderPainBadge(pain, extraClass = '') {
-      if (!pain) return '';
-      return `<span class="badge meta ${extraClass}">Pain: 🔥${pain}</span>`;
-    }
+function updateStartButton() {
+  // start is always enabled unless there's an active headache
+  const hasActive = entries.some(e => !e.end);
+  $('btn-start').disabled = hasActive;
+}
 
-    function renderStartPopoverOptions() {
-      const typeWrap = document.getElementById('type-options');
-      const painWrap = document.getElementById('pain-options');
-      typeWrap.innerHTML = [
-        `<button class="type-pill ${selectedType === null ? 'selected' : ''}" type="button" onclick="setStartType(null)">None</button>`,
-        ...Object.entries(TYPE_STYLES).map(([key, cfg]) => `
-          <button class="type-pill ${selectedType === key ? 'selected' : ''}" type="button" onclick="setStartType('${key}')" style="${selectedType === key ? `background:${cfg.color};border-color:${cfg.color};` : ''}">${cfg.label}</button>
-        `)
-      ].join('');
-      painWrap.innerHTML = Array.from({ length: 5 }, (_, i) => {
-        const pain = i + 1;
-        const color = PAIN_COLORS[i];
-        const selected = selectedPain === pain;
-        return `<button class="pain-dot ${selected ? 'selected' : ''}" type="button" onclick="setStartPain(${pain})" style="background:${selected ? color : 'rgba(255,255,255,.04)'};border-color:${color};">🧠${pain}</button>`;
-      }).join('');
-    }
+/* ── Data loading ──────────────────────────────────────────────── */
+async function fetchJSON(url, opts) {
+  const r = await fetch(url, opts);
+  return r.json();
+}
 
-    function setStartType(type) {
-      selectedType = type;
-      renderStartPopoverOptions();
-    }
+async function loadData() {
+  try {
+    entries = await fetchJSON(API.log);
+    if (!Array.isArray(entries)) entries = [];
+    sortEntries();
+  } catch { entries = []; }
+  updateButtons();
+  renderLog();
+}
 
-    function setStartPain(pain) {
-      selectedPain = selectedPain === pain ? null : pain;
-      renderStartPopoverOptions();
-    }
+function sortEntries() {
+  entries.sort((a, b) => {
+    const aEnd = a.end || '9';
+    const bEnd = b.end || '9';
+    if (aEnd !== bEnd) return bEnd.localeCompare(aEnd);
+    return b.start.localeCompare(a.start);
+  });
+}
 
-    function openStartPopover() {
-      if (document.getElementById('btn-start').disabled) return;
-      renderStartPopoverOptions();
-      document.getElementById('start-popover').classList.add('show');
-    }
+/* ── Rendering ─────────────────────────────────────────────────── */
+function renderLog() {
+  $('log-count').textContent = 'LOG — ' + entries.length + ' EPISODE' + (entries.length !== 1 ? 'S' : '');
+  const list = $('log-list');
+  if (entries.length === 0) {
+    list.innerHTML = '<div class="log-empty">No episodes recorded yet</div>';
+    return;
+  }
+  list.innerHTML = entries.map(ep => renderEntry(ep)).join('');
+}
 
-    function closeStartPopover() {
-      document.getElementById('start-popover').classList.remove('show');
-    }
+function renderEntry(ep) {
+  const isOpen = !ep.end;
+  const isExpanded = expandedId === ep.id;
+  const start = new Date(ep.start);
+  let end = null, dur = null;
+  if (ep.end) {
+    end = new Date(ep.end);
+    dur = end - start;
+  }
+  const typeColor = { SINUS: '#7ae7ff', MIGRAINE: '#a78bfa', TENSION: '#fbbf24', CLUSTER: '#ff5e6c' }[ep.type] || '#7a8599';
+  const typeName = ep.type || '';
 
-    function renderLog(entries) {
-      const list = document.getElementById('log-list');
-      const count = document.getElementById('log-count');
-      count.textContent = entries.length;
-      list.innerHTML = '';
-      if (entries.length === 0) {
-        list.innerHTML = '<li class="log-empty">No episodes logged yet.</li>';
-        return;
-      }
-      entries.slice().reverse().forEach(ep => {
-        const s = new Date(ep.start);
-        const hasEnd = !!ep.end;
-        const endDate = hasEnd ? new Date(ep.end) : null;
-        const li = document.createElement('li');
-        const isExpanded = expandedId === ep.id;
-        const duration = hasEnd ? formatDuration(endDate - s) : 'Active';
-        const range = hasEnd
-          ? `${formatTime(s)} - ${formatTime(endDate)}`
-          : `${formatTime(s)} - Active`;
-        const typeKey = getEpisodeType(ep);
-        const pain = getEpisodePain(ep);
+  let metaHtml = '';
+  if (ep.pain) {
+    metaHtml += '<span class="badge badge-meta">Pain ' + ep.pain + '/5</span>';
+  }
+  if (isOpen) {
+    metaHtml += '<span class="badge badge-active">ACTIVE</span>';
+  } else {
+    metaHtml += '<span class="badge badge-closed">CLOSED</span>';
+  }
+  if (ep.type) {
+    metaHtml += '<span class="badge badge-type" style="background:' + typeColor + '">' + typeName + '</span>';
+  }
 
-        if (isExpanded) li.classList.add('expanded');
-        li.innerHTML = `
-          <button class="log-entry-toggle" type="button" aria-expanded="${isExpanded}" onclick="toggleEntry('${ep.id}')">
-            <div class="log-entry-main">
-              <div class="log-entry-date">${formatDateDisplay(s)}</div>
-              <div class="log-entry-meta">
-                <span class="log-entry-range">${range}</span>
-                <span>•</span>
-                <span class="log-entry-duration">${duration}</span>
-                <span class="log-entry-indicators">${renderTypeBadge(typeKey)}${renderPainBadge(pain)}</span>
-                <span class="badge ${hasEnd ? 'e' : 's'}">${hasEnd ? 'Ended' : 'Active'}</span>
-              </div>
-            </div>
-            <span class="log-entry-chevron">▼</span>
-          </button>
-          <div class="log-entry-expand">
-            <label class="notes-label" for="notes-${ep.id}">Notes</label>
-            <textarea class="notes-input" id="notes-${ep.id}" placeholder="Add notes..." onclick="event.stopPropagation()">${escapeHtml(ep.notes || '')}</textarea>
-            <div class="entry-facts">
-              ${renderTypeBadge(typeKey)}
-              ${renderPainBadge(pain)}
-            </div>
-            <div class="entry-actions">
-              <button class="btn-save" type="button" onclick="event.stopPropagation(); saveEntry('${ep.id}')">Edit</button>
-              <button class="btn-del" type="button" onclick="event.stopPropagation(); deleteEntry('${ep.id}')">Delete</button>
-            </div>
-          </div>`;
-        list.appendChild(li);
-      });
-    }
+  return '<li class="' + (isExpanded ? 'expanded' : '') + '">'
+    + '<button class="log-entry-toggle" onclick="toggleEntry(\'' + ep.id + '\')">'
+    + '<div class="log-entry-main">'
+    + '<div class="log-entry-top">'
+    + '<span class="log-entry-date">' + fmtDate(start) + ' ' + fmtTime(start) + '</span>'
+    + (dur != null ? '<span class="log-entry-duration">' + fmtDuration(dur) + '</span>' : '')
+    + '</div>'
+    + (ep.end ? '<div class="log-entry-meta">' + metaHtml + ' → ' + fmtDate(end) + ' ' + fmtTime(end) + '</div>'
+             : '<div class="log-entry-meta">' + metaHtml + ' — ongoing</div>')
+    + '</div>'
+    + '<span class="log-entry-chevron">▼</span>'
+    + '</button>'
+    + '<div class="log-entry-expand">'
+    + '<div class="expand-label">TYPE</div>'
+    + '<div class="expand-row" data-edit-type="' + ep.id + '">'
+    + renderEditTypePills(ep)
+    + '</div>'
+    + '<div class="expand-label">PAIN</div>'
+    + '<div class="expand-row edit-pain-row" data-edit-pain="' + ep.id + '">'
+    + renderEditPainDots(ep)
+    + '</div>'
+    + '<div class="expand-label">NOTES</div>'
+    + '<textarea class="notes-input" id="notes-' + ep.id + '" placeholder="Notes...">' + esc(ep.notes || '') + '</textarea>'
+    + '<div class="entry-actions">'
+    + '<button class="btn-save" onclick="saveEntry(\'' + ep.id + '\')">SAVE</button>'
+    + '<button class="btn-del" onclick="deleteEntry(\'' + ep.id + '\')">DELETE</button>'
+    + '</div>'
+    + '</div>'
+    + '</li>';
+}
 
-    function showStatus(msg, isActive) {
-      const el = document.getElementById('status');
-      el.textContent = msg;
-      el.classList.toggle('active', !!isActive);
-      el.classList.add('show');
-      clearTimeout(el._t);
-      el._t = setTimeout(() => el.classList.remove('show'), 2800);
-    }
+function renderEditTypePills(ep) {
+  return ['SINUS','MIGRAINE','TENSION','CLUSTER'].map(t => {
+    const sel = ep.type === t ? ' selected' : '';
+    return '<button class="edit-type-pill' + sel + '" data-type="' + t + '">' + t + '</button>';
+  }).join('');
+}
 
-    function flash(id) {
-      const f = document.getElementById(id);
-      f.classList.remove('pop');
-      void f.offsetWidth;
-      f.classList.add('pop');
-    }
+function renderEditPainDots(ep) {
+  return [1,2,3,4,5].map(p => {
+    const sel = ep.pain === p ? ' selected' : '';
+    return '<button class="edit-pain-dot' + sel + '" data-pain="' + p + '"><img src="brain_' + p + '.png" alt="' + p + '"></button>';
+  }).join('');
+}
 
-    function updateActiveBanner(entries) {
-      const banner = document.getElementById('active-banner');
-      const timer  = document.getElementById('active-timer');
-      const btnStart = document.getElementById('btn-start');
-      const btnEnd   = document.getElementById('btn-end');
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmtDate(d) { return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }); }
+function fmtTime(d) { return d.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', hour12:true }); }
 
-      clearInterval(activeInterval);
+function fmtDuration(ms) {
+  const totalMin = Math.floor(ms / 60000);
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  if (h > 0) return h + 'h ' + m + 'm';
+  return m + 'm';
+}
 
-      // Find last entry with no end
-      const active = [...entries].reverse().find(ep => !ep.end);
+function getEntry(id) { return entries.find(e => e.id === id); }
 
-      if (active) {
-        banner.classList.add('show');
-        btnStart.disabled = true;
-        btnEnd.disabled   = false;
-        const start = new Date(active.start);
-        function tick() {
-          const elapsed = Date.now() - start;
-          const h = Math.floor(elapsed / 3600000);
-          const m = Math.floor((elapsed % 3600000) / 60000);
-          const s = Math.floor((elapsed % 60000) / 1000);
-          timer.textContent = h > 0
-            ? `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
-            : `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-        }
-        tick();
-        activeInterval = setInterval(tick, 1000);
+/* ── Expand / collapse ─────────────────────────────────────────── */
+function toggleEntry(id) {
+  expandedId = expandedId === id ? null : id;
+  renderLog();
+  // Re-bind edit controls
+  bindEditControls(id);
+}
+
+function bindEditControls(id) {
+  if (expandedId !== id) return;
+  const ep = getEntry(id);
+  if (!ep) return;
+
+  // Type pills
+  const typeRow = document.querySelector('[data-edit-type="' + id + '"]');
+  if (typeRow) {
+    typeRow.addEventListener('click', function(e) {
+      const pill = e.target.closest('.edit-type-pill');
+      if (!pill) return;
+      const wasSelected = pill.classList.contains('selected');
+      this.querySelectorAll('.edit-type-pill').forEach(p => p.classList.remove('selected'));
+      if (!wasSelected) {
+        pill.classList.add('selected');
+        ep.type = pill.dataset.type;
       } else {
-        banner.classList.remove('show');
-        timer.textContent = '—';
-        btnStart.disabled = false;
-        btnEnd.disabled   = true;
+        ep.type = null;
       }
-    }
+    });
+  }
 
-    async function loadAndRender() {
-      try {
-        const r = await fetch(API_LOG);
-        const entries = await r.json();
-        currentEntries = entries;
-        if (expandedId && !entries.find(entry => entry.id === expandedId)) expandedId = null;
-        renderLog(entries);
-        updateActiveBanner(entries);
-      } catch {
-        currentEntries = [];
-        renderLog([]);
+  // Pain dots
+  const painRow = document.querySelector('[data-edit-pain="' + id + '"]');
+  if (painRow) {
+    painRow.addEventListener('click', function(e) {
+      const dot = e.target.closest('.edit-pain-dot');
+      if (!dot) return;
+      const wasSelected = dot.classList.contains('selected');
+      this.querySelectorAll('.edit-pain-dot').forEach(d => d.classList.remove('selected'));
+      if (!wasSelected) {
+        dot.classList.add('selected');
+        ep.pain = parseInt(dot.dataset.pain);
+      } else {
+        ep.pain = null;
       }
-    }
+    });
+  }
+}
 
-    async function logStart() {
-      flash('flash-start');
-      try {
-        const body = new URLSearchParams();
-        if (selectedType) body.set('type', selectedType);
-        if (selectedPain) body.set('pain', selectedPain);
-        const r = await fetch(API_ADD, {
-          method: 'POST',
-          body: body.toString(),
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-        });
-        const d = await r.json();
-        if (d.timestamp) {
-          closeStartPopover();
-          selectedType = null;
-          selectedPain = null;
-          showStatus('Headache started 🩷', true);
-          await loadAndRender();
-        }
-      } catch {
-        showStatus('Save failed — check connection');
-      }
-    }
+/* ── Save / Delete ─────────────────────────────────────────────── */
+async function saveEntry(id) {
+  const ep = getEntry(id);
+  const notesEl = $('notes-' + id);
+  if (!ep || !notesEl) return;
+  const body = new URLSearchParams({ id, start: ep.start, notes: notesEl.value });
+  if (ep.end) body.set('end', ep.end);
+  if (ep.type) body.set('type', ep.type);
+  if (ep.pain != null) body.set('pain', String(ep.pain));
+  try {
+    const d = await fetchJSON(API.edit, { method: 'POST', body });
+    if (d.ok) { showStatus('Entry updated', 'started'); await loadData(); }
+    else showStatus(d.error || 'Update failed', 'error');
+  } catch { showStatus('Connection error', 'error'); }
+}
 
-    async function confirmStart() {
-      await logStart();
-    }
+async function deleteEntry(id) {
+  if (!confirm('Delete this episode?')) return;
+  try {
+    const r = await fetch(API.delete + '?id=' + encodeURIComponent(id), { method: 'DELETE' });
+    const d = await r.json();
+    if (d.ok) {
+      if (expandedId === id) expandedId = null;
+      showStatus('Entry deleted', 'stopped');
+      await loadData();
+    } else showStatus(d.error || 'Delete failed', 'error');
+  } catch { showStatus('Connection error', 'error'); }
+}
 
-    async function logEnd() {
-      flash('flash-end');
-      try {
-        const r = await fetch(API_END, { method: 'POST' });
-        const d = await r.json();
-        if (d.success || d.ok) {
-          showStatus('Headache ended 💚');
-          await loadAndRender();
-        } else {
-          showStatus('No active headache to end');
-        }
-      } catch {
-        showStatus('Save failed — check connection');
-      }
-    }
+/* ── CSV Import / Export ───────────────────────────────────────── */
+$('btn-import').addEventListener('click', () => $('csv-file').click());
+$('btn-import-label').addEventListener('click', () => $('csv-file').click());
+$('btn-export').addEventListener('click', exportCSV);
+$('btn-export-bottom').addEventListener('click', exportCSV);
+$('btn-refresh').addEventListener('click', async () => {
+  $('btn-refresh').classList.add('spinning');
+  await loadData();
+  setTimeout(() => $('btn-refresh').classList.remove('spinning'), 400);
+});
 
-    async function importLog(input) {
-      const file = input.files[0];
-      if (!file) return;
-      try {
-        const text = await file.text();
-        const r = await fetch(API_IMPORT, {
-          method: 'POST',
-          body: text,
-          headers: { 'Content-Type': 'text/csv' }
-        });
-        const d = await r.json();
-        if (d.ok) {
-          showStatus(`Imported ${d.imported} entry(s) — ${d.skipped} skipped`);
-          await loadAndRender();
-        } else {
-          showStatus('Import failed: ' + (d.error || 'unknown error'));
-        }
-      } catch {
-        showStatus('Import failed — check connection');
-      }
-      input.value = '';
-    }
+$('csv-file').addEventListener('change', async () => {
+  const file = $('csv-file').files[0];
+  if (!file) return;
+  try {
+    const text = await file.text();
+    const r = await fetch(API.import, { method: 'POST', body: text });
+    const d = await r.json();
+    if (d.ok) { showStatus('Imported ' + d.imported + ' episodes', 'started'); await loadData(); }
+    else showStatus(d.error || 'Import failed', 'error');
+  } catch { showStatus('Import failed', 'error'); }
+  $('csv-file').value = '';
+});
 
-    async function exportLog() {
-      try {
-        const r = await fetch(API_LOG);
-        const entries = await r.json();
-        if (entries.length === 0) { showStatus('No entries to export'); return; }
-        let csv = 'Start Date,Start Time,End Date,End Time,Duration,Type,Pain,Notes\n';
-        const escapeCsv = value => {
-          const text = String(value ?? '');
-          return /[",\n]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
-        };
-        entries.forEach(ep => {
-          const s = new Date(ep.start);
-          const hasEnd = !!ep.end;
-          const e = hasEnd ? new Date(ep.end) : null;
-          const dur = hasEnd ? formatDuration(e - s) : 'Active';
-          csv += [
-            formatDate(s),
-            formatTime(s),
-            hasEnd ? formatDate(e) : '',
-            hasEnd ? formatTime(e) : '',
-            dur,
-            ep.type || '',
-            getEpisodePain(ep) || '',
-            ep.notes || ''
-          ].map(escapeCsv).join(',') + '\n';
-        });
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url  = URL.createObjectURL(blob);
-        const a    = document.createElement('a');
-        a.href = url; a.download = 'headache-log.csv'; a.click();
-        URL.revokeObjectURL(url);
-      } catch {
-        showStatus('Export failed');
-      }
-    }
+function exportCSV() {
+  if (entries.length === 0) { showStatus('No episodes to export', 'error'); return; }
+  const escCsv = v => {
+    const t = String(v ?? '');
+    return /[",\n]/.test(t) ? '"' + t.replace(/"/g,'""') + '"' : t;
+  };
+  let csv = 'Start Date,Start Time,End Date,End Time,Duration,Type,Pain,Notes\n';
+  entries.forEach(e => {
+    const s = new Date(e.start);
+    const hasEnd = !!e.end;
+    const end = hasEnd ? new Date(e.end) : null;
+    csv += [
+      fmtDate(s), fmtTime(s),
+      hasEnd ? fmtDate(end) : '', hasEnd ? fmtTime(end) : '',
+      hasEnd ? fmtDuration(end - s) : 'Active',
+      e.type || '', e.pain || '', e.notes || ''
+    ].map(escCsv).join(',') + '\n';
+  });
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'headache-log.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
 
-    function escapeHtml(value) {
-      return String(value ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    }
-
-    function toggleEntry(id) {
-      expandedId = expandedId === id ? null : id;
-      renderLog(currentEntries);
-    }
-
-    async function saveEntry(id) {
-      const ep = currentEntries.find(entry => entry.id === id);
-      const notesEl = document.getElementById('notes-' + id);
-      if (!ep || !notesEl) {
-        showStatus('Entry not found');
-        return;
-      }
-      const body = new URLSearchParams({
-        id,
-        start: ep.start,
-        notes: notesEl.value
-      });
-      if (ep.end) body.set('end', ep.end);
-      try {
-        const r = await fetch(API_EDIT, {
-          method: 'POST',
-          body: body.toString(),
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-        });
-        const d = await r.json();
-        if (d.ok) {
-          showStatus('Entry updated');
-          await loadAndRender();
-        } else {
-          showStatus(d.error || 'Update failed');
-        }
-      } catch {
-        showStatus('Update failed');
-      }
-    }
-
-    async function deleteEntry(id) {
-      if (!confirm('Delete this entry?')) return;
-      try {
-        const r = await fetch(API_LOG + '?id=' + encodeURIComponent(id), { method: 'DELETE' });
-        const d = await r.json();
-        if (d.ok) {
-          if (expandedId === id) expandedId = null;
-          showStatus('Entry deleted');
-          await loadAndRender();
-        } else {
-          showStatus(d.error || 'Delete failed');
-        }
-      } catch {
-        showStatus('Delete failed');
-      }
-    }
-
-    loadAndRender();
-    setInterval(loadAndRender, 10000);
-
-    document.addEventListener('click', event => {
-      const popover = document.getElementById('start-popover');
-      const startBtn = document.getElementById('btn-start');
-      if (!popover.classList.contains('show')) return;
-      // Stop propagation so clicks inside popover don't reach the document handler
-      if (popover.contains(event.target) || startBtn.contains(event.target)) {
-        event.stopPropagation();
-        return;
-      }
-      closeStartPopover();
-    }, true);
-  </script>
+/* ── Init ──────────────────────────────────────────────────────── */
+loadData();
+setInterval(loadData, 15000);
+</script>
 </body>
 </html>
