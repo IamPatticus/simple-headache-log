@@ -1,0 +1,10 @@
+services:
+  headache-log:
+    image: ghcr.io/iamPatticus/simple-headache-log:main
+    container_name: Headache-log
+    restart: unless-stopped
+    ports:
+      - "5070:5000"
+    volumes:
+      # Optional: persist data outside container
+      # ./data:/app/data
